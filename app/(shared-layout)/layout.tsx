@@ -1,11 +1,14 @@
 import { Navbar } from "@/components/web/navbar";
-import Image from "next/image";
 
-export default function Home() {
+export default function SharedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <Navbar />
-      <h1>hello from the index page</h1>
+      {children}
     </div>
   );
 }
