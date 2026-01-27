@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -30,9 +31,15 @@ export default function SignUpPage() {
       password: "",
     },
   });
-  function onSubmit(values: z.infer<typeof signUpSchema>) {
-    console.log(values);
+
+  async function onSubmit(data: z.infer<typeof signUpSchema>) {
+    await authClient.signUp.email({
+      email: data.email,
+      name: data.name,
+      password: data.password,
+    });
   }
+
   return (
     <Card>
       <CardHeader>
@@ -84,7 +91,7 @@ export default function SignUpPage() {
                   <FieldLabel>Password</FieldLabel>
                   <Input
                     aria-invalid={fieldState.invalid}
-                    placeholder="password"
+                    placeholder="********"
                     {...field}
                   />
                   {fieldState.invalid && (
