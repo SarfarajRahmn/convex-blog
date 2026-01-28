@@ -19,10 +19,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -33,11 +38,21 @@ export default function SignUpPage() {
   });
 
   async function onSubmit(data: z.infer<typeof signUpSchema>) {
-    await authClient.signUp.email({
+    setPending(true);
+    const { error } = await authClient.signUp.email({
       email: data.email,
       name: data.name,
       password: data.password,
     });
+    if (error) {
+      form.setError("root", {
+        message: error.message,
+      });
+      setPending(false);
+      return;
+    }
+    setPending(false);
+    router.push("/");
   }
 
   return (
@@ -57,7 +72,7 @@ export default function SignUpPage() {
                   <FieldLabel>Full Name</FieldLabel>
                   <Input
                     aria-invalid={fieldState.invalid}
-                    placeholder="John Doe"
+                    placeholder="Full Name"
                     {...field}
                   />
                   {fieldState.invalid && (
@@ -75,6 +90,7 @@ export default function SignUpPage() {
                   <Input
                     aria-invalid={fieldState.invalid}
                     placeholder="email@example.com"
+                    type="email"
                     {...field}
                   />
                   {fieldState.invalid && (
@@ -92,6 +108,7 @@ export default function SignUpPage() {
                   <Input
                     aria-invalid={fieldState.invalid}
                     placeholder="********"
+                    type="password"
                     {...field}
                   />
                   {fieldState.invalid && (
@@ -100,7 +117,14 @@ export default function SignUpPage() {
                 </Field>
               )}
             />
-            <Button type="submit">Sign Up</Button>
+            {form.formState.errors.root && (
+              <p className="text-sm text-destructive font-medium">
+                {form.formState.errors.root.message}
+              </p>
+            )}
+            <Button type="submit" disabled={pending}>
+              {pending ? <Loader2 className="animate-spin" /> : "Sign Up"}
+            </Button>
           </FieldGroup>
         </form>
       </CardContent>
