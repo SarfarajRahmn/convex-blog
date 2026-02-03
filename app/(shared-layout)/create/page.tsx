@@ -1,4 +1,8 @@
-import { blogSchema } from "@/app/schemas/blog";
+"use client";
+
+import { createBlogAction } from "@/app/actions";
+import { postSchema } from "@/app/schemas/blog";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,19 +10,39 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FieldGroup } from "@/components/ui/field";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/convex/_generated/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
 export default function CreateRoute() {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const form = useForm({
-    resolver: zodResolver(blogSchema),
+    resolver: zodResolver(postSchema),
     defaultValues: {
       title: "",
       content: "",
     },
   });
+
+  function onSubmit(values: z.infer<typeof postSchema>) {
+    startTransition(async () => {
+      console.log("hey this runs on client side");
+      await createBlogAction(values);
+    });
+  }
 
   return (
     <div className="py-12 ">
@@ -37,8 +61,54 @@ export default function CreateRoute() {
           <CardDescription>Create a new blog article</CardDescription>
         </CardHeader>
         <CardContent>
-          <form action="">
-            <FieldGroup></FieldGroup>
+          <form onSubmit={form.handleSubmit(onSubmit)} action="">
+            <FieldGroup className="gap-y-4">
+              <Controller
+                name="title"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Title</FieldLabel>
+                    <Input
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Super cool title"
+                      {...field}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="content"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Content</FieldLabel>
+                    <Textarea
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Super cool blog content..."
+                      {...field}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Button type="submit" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    {" "}
+                    <Loader2 className="animate-spin size-4" />{" "}
+                    <span>loading...</span>{" "}
+                  </>
+                ) : (
+                  "Create Post"
+                )}
+              </Button>{" "}
+            </FieldGroup>
           </form>
         </CardContent>
       </Card>
