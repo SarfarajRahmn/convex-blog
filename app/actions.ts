@@ -29,7 +29,6 @@ export async function createBlogAction(values: z.infer<typeof postSchema>) {
   } catch (error) {
     console.error("Action error details:", error);
 
-    // Check if it's a network error
     if (error instanceof Error && error.message.includes("fetch")) {
       throw new Error(
         `Network error: ${error.message}. Check if Convex URL is correct: ${process.env.NEXT_PUBLIC_CONVEX_URL}`,

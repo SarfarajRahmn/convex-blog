@@ -17,7 +17,7 @@ export function Navbar() {
         <Link href="/">
           <h1 className="text-3xl font-bold">
             Next
-            <span className="text-blue-500">Pro</span>
+            <span className="text-primary">Pro</span>
           </h1>
         </Link>
 
