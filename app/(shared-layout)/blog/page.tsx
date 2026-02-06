@@ -1,13 +1,16 @@
+import { fetchQuery } from "convex/nextjs";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
-import { fetchQuery } from "convex/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+export const runtime = "nodejs";
 
 export default async function BlogPage() {
+  console.log("CONVEX_URL", process.env.NEXT_PUBLIC_CONVEX_URL);
+  console.log("CONVEX_SITE_URL", process.env.NEXT_PUBLIC_CONVEX_SITE_URL);
   return (
     <>
       <div className="text-center pb-12">
@@ -27,7 +30,8 @@ export default async function BlogPage() {
 }
 
 async function LoadBlogList() {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 10));
+
   const data = await fetchQuery(api.posts.getPosts);
 
   return (
