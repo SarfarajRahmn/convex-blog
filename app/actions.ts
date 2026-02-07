@@ -1,40 +1,59 @@
-// Updated actions.ts with better error handling
 "use server";
 
 import z from "zod";
 import { postSchema } from "./schemas/blog";
-import { redirect } from "next/navigation";
-import { fetchAuthMutation } from "@/lib/auth-server";
+import { fetchMutation } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
+import { redirect } from "next/navigation";
+import { getToken } from "@/lib/auth-server";
+import { updateTag } from "next/cache";
 
 export async function createBlogAction(values: z.infer<typeof postSchema>) {
   try {
     const parsed = postSchema.safeParse(values);
 
     if (!parsed.success) {
-      console.error("Validation error:", parsed.error);
-      throw new Error("Invalid form data");
+      throw new Error("something went wrong");
     }
 
-    console.log("Calling fetchAuthMutation...");
+    const token = await getToken();
 
-    const result = await fetchAuthMutation(api.posts.createPost, {
-      title: parsed.data.title,
-      body: parsed.data.content,
+    const imageUrl = await fetchMutation(
+      api.posts.generateImageUploadUrl,
+      {},
+      { token },
+    );
+
+    const uploadResult = await fetch(imageUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": parsed.data.image.type,
+      },
+      body: parsed.data.image,
     });
 
-    console.log("Mutation successful:", result);
-
-    return redirect("/");
-  } catch (error) {
-    console.error("Action error details:", error);
-
-    if (error instanceof Error && error.message.includes("fetch")) {
-      throw new Error(
-        `Network error: ${error.message}. Check if Convex URL is correct: ${process.env.NEXT_PUBLIC_CONVEX_URL}`,
-      );
+    if (!uploadResult.ok) {
+      return {
+        error: "Failed to upload image",
+      };
     }
 
-    throw error;
+    const { storageId } = await uploadResult.json();
+    await fetchMutation(
+      api.posts.createPost,
+      {
+        body: parsed.data.content,
+        title: parsed.data.title,
+        imageStorageId: storageId,
+      },
+      { token },
+    );
+  } catch {
+    return {
+      error: "Failed to create post",
+    };
   }
+
+  updateTag("blog");
+  return redirect("/blog");
 }

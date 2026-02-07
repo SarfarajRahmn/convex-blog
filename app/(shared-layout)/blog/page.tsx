@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 export const runtime = "nodejs";
 
-export default async function BlogPage() {
+export default function BlogPage() {
   console.log("CONVEX_URL", process.env.NEXT_PUBLIC_CONVEX_URL);
   console.log("CONVEX_SITE_URL", process.env.NEXT_PUBLIC_CONVEX_SITE_URL);
   return (
@@ -40,7 +40,10 @@ async function LoadBlogList() {
         <Card key={post._id} className="pt-0">
           <div className="relative h-48 w-full overflow-hidden">
             <Image
-              src="https://images.unsplash.com/photo-1709884735017-114f4a31f944?q=80&w=1229&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              src={
+                post.imageUrl ??
+                "https://images.unsplash.com/photo-1709884735017-114f4a31f944?q=80&w=1229&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              }
               alt="blog image"
               fill
               className="w-full h-full object-cover rounded-t-lg"
@@ -74,7 +77,7 @@ async function LoadBlogList() {
 
 function SkeletonLoadingUi() {
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 ">
+    <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-3 ">
       {[...Array(3)].map((_, i) => (
         <div key={i} className="flex flex-col space-y-3">
           <Skeleton className="h-48 w-full rounded-xl" />
