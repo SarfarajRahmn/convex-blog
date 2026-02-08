@@ -66,7 +66,7 @@ export default function CreateRoute() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Title</FieldLabel>
-                    <Textarea
+                    <Input
                       aria-invalid={fieldState.invalid}
                       placeholder="Super cool title"
                       {...field}

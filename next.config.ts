@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         port: "",
       },
+      {
+        hostname: "doting-hound-343.convex.cloud",
+        protocol: "https",
+        port: "",
+      },
     ],
   },
 };

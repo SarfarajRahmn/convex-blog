@@ -37,7 +37,7 @@ export const getPosts = query({
             ? await ctx.storage.getUrl(post.imageStorageId)
             : null;
 
-        return {
+        return {   
           ...post,
           imageUrl: resolvedImageUrl,
         };
