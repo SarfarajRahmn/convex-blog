@@ -23,6 +23,7 @@ import { Loader2 } from "lucide-react";
 import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
+import { toast } from "sonner";
 
 export default function CreateRoute() {
   const [isPending, startTransition] = useTransition();
@@ -36,8 +37,19 @@ export default function CreateRoute() {
   });
 
   function onSubmit(values: z.infer<typeof postSchema>) {
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("content", values.content);
+    formData.append("image", values.image);
+
     startTransition(async () => {
-      await createBlogAction(values);
+      const result = await createBlogAction(formData);
+
+      if (result?.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Post created successfully");
     });
   }
 

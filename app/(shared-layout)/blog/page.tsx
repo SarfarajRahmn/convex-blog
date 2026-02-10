@@ -1,3 +1,4 @@
+import { fetchIPv4 } from "@/lib/fetch-ipv4";
 import { fetchQuery } from "convex/nextjs";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -9,8 +10,6 @@ import { Suspense } from "react";
 export const runtime = "nodejs";
 
 export default function BlogPage() {
-  console.log("CONVEX_URL", process.env.NEXT_PUBLIC_CONVEX_URL);
-  console.log("CONVEX_SITE_URL", process.env.NEXT_PUBLIC_CONVEX_SITE_URL);
   return (
     <>
       <div className="text-center pb-12">
@@ -32,7 +31,31 @@ export default function BlogPage() {
 async function LoadBlogList() {
   await new Promise((resolve) => setTimeout(resolve, 10));
 
-  const data = await fetchQuery(api.posts.getPosts);
+  const url = `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/query`;
+  console.log("Fetching from:", url);
+
+  const response = await fetchIPv4(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      path: "posts:getPosts",
+      args: {},
+      format: "json",
+    }),
+  });
+
+  const parsed = await response.json();
+  const data = parsed.value as Array<{
+    _id: string;
+    _creationTime: number;
+    title: string;
+    body: string;
+    authorId: string;
+    imageStorageId?: string;
+    imageUrl: string | null;
+  }>;
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 ">
@@ -46,6 +69,7 @@ async function LoadBlogList() {
               }
               alt="blog image"
               fill
+              unoptimized
               className="w-full h-full object-cover rounded-t-lg"
             />{" "}
           </div>
