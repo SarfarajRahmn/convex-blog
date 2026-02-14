@@ -84,7 +84,7 @@ async function LoadBlogList() {
             </Link>
           </CardContent>
           <CardFooter>
-            <Link
+            <Link 
               className={buttonVariants({
                 className: "w-full",
               })}
