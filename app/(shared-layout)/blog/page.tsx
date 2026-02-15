@@ -9,6 +9,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 export const runtime = "nodejs";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 20;
+
 export default function BlogPage() {
   return (
     <>
@@ -84,7 +87,7 @@ async function LoadBlogList() {
             </Link>
           </CardContent>
           <CardFooter>
-            <Link 
+            <Link
               className={buttonVariants({
                 className: "w-full",
               })}

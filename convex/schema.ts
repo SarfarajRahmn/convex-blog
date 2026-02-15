@@ -8,4 +8,10 @@ export default defineSchema({
     authorId: v.string(),
     imageStorageId: v.optional(v.id("_storage")),
   }),
+  comments: defineTable({
+    body: v.string(),
+    authorId: v.string(),
+    postId: v.id("posts"),
+    authorName: v.string(),
+  }),
 });

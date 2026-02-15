@@ -19,45 +19,37 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import { Loader2 } from "lucide-react";
+
 import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
-import { toast } from "sonner";
 
 export default function CreateRoute() {
   const [isPending, startTransition] = useTransition();
+
   const form = useForm({
     resolver: zodResolver(postSchema),
     defaultValues: {
-      title: "",
       content: "",
+      title: "",
       image: undefined,
     },
   });
 
   function onSubmit(values: z.infer<typeof postSchema>) {
-    const formData = new FormData();
-    formData.append("title", values.title);
-    formData.append("content", values.content);
-    formData.append("image", values.image);
-
     startTransition(async () => {
-      const result = await createBlogAction(formData);
+      console.log("hey this runs on the client side");
 
-      if (result?.error) {
-        toast.error(result.error);
-        return;
-      }
-      toast.success("Post created successfully");
+      await createBlogAction(values);
     });
   }
-
   return (
-    <div className="py-12 ">
+    <div className="py-12">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-          Create post
+          Create Post
         </h1>
         <p className="text-xl text-muted-foreground pt-4">
           Share your thoughts with the big world
@@ -66,11 +58,11 @@ export default function CreateRoute() {
 
       <Card className="w-full max-w-xl mx-auto">
         <CardHeader>
-          <CardTitle> Create Blog Article </CardTitle>
+          <CardTitle>Create Blog Article</CardTitle>
           <CardDescription>Create a new blog article</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} action="">
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup className="gap-y-4">
               <Controller
                 name="title"
@@ -80,7 +72,7 @@ export default function CreateRoute() {
                     <FieldLabel>Title</FieldLabel>
                     <Input
                       aria-invalid={fieldState.invalid}
-                      placeholder="Super cool title"
+                      placeholder="super cool title"
                       {...field}
                     />
                     {fieldState.invalid && (
@@ -89,6 +81,7 @@ export default function CreateRoute() {
                   </Field>
                 )}
               />
+
               <Controller
                 name="content"
                 control={form.control}
@@ -97,7 +90,7 @@ export default function CreateRoute() {
                     <FieldLabel>Content</FieldLabel>
                     <Textarea
                       aria-invalid={fieldState.invalid}
-                      placeholder="Super cool blog content..."
+                      placeholder="Super cool blog content"
                       {...field}
                     />
                     {fieldState.invalid && (
@@ -106,6 +99,7 @@ export default function CreateRoute() {
                   </Field>
                 )}
               />
+
               <Controller
                 name="image"
                 control={form.control}
@@ -114,11 +108,11 @@ export default function CreateRoute() {
                     <FieldLabel>Image</FieldLabel>
                     <Input
                       aria-invalid={fieldState.invalid}
-                      placeholder="Super cool blog content..."
+                      placeholder="Super cool blog content"
                       type="file"
                       accept="image/*"
                       onChange={(event) => {
-                        const file = event?.target.files?.[0];
+                        const file = event.target.files?.[0];
                         field.onChange(file);
                       }}
                     />
@@ -128,17 +122,17 @@ export default function CreateRoute() {
                   </Field>
                 )}
               />
-              <Button type="submit" disabled={isPending}>
+
+              <Button disabled={isPending}>
                 {isPending ? (
                   <>
-                    {" "}
-                    <Loader2 className="animate-spin size-4" />{" "}
-                    <span>loading...</span>{" "}
+                    <Loader2 className="size-4 animate-spin" />
+                    <span>Loading...</span>
                   </>
                 ) : (
-                  "Create Post"
+                  <span>Create Post</span>
                 )}
-              </Button>{" "}
+              </Button>
             </FieldGroup>
           </form>
         </CardContent>

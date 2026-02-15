@@ -37,7 +37,7 @@ export const getPosts = query({
             ? await ctx.storage.getUrl(post.imageStorageId)
             : null;
 
-        return {   
+        return {
           ...post,
           imageUrl: resolvedImageUrl,
         };
@@ -55,5 +55,28 @@ export const generateImageUploadUrl = mutation({
       throw new ConvexError("Not Authenticated");
     }
     return await ctx.storage.generateUploadUrl();
+  },
+});
+
+export const getPostById = query({
+  args: {
+    postId: v.id("posts"),
+  },
+  handler: async (ctx, args) => {
+    const post = await ctx.db.get(args.postId);
+
+    if (!post) {
+      throw new ConvexError("Post not found");
+    }
+
+    const resolvedImageUrl =
+      post.imageStorageId !== undefined
+        ? await ctx.storage.getUrl(post.imageStorageId)
+        : null;
+
+    return {
+      ...post,
+      imageUrl: resolvedImageUrl,
+    };
   },
 });
