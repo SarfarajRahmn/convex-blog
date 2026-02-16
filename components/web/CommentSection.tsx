@@ -15,13 +15,13 @@ import { api } from "@/convex/_generated/api";
 import z from "zod";
 import { toast } from "sonner";
 import { useTransition } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Separator } from "../ui/separator";
 
 import { Preloaded, usePreloadedQuery } from "convex/react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export function CommentSection(props: {
-  preloadedComments: Preloaded<typeof api.comments.getCommentsByPostId>;
+  preloadedComments: Preloaded<typeof api.comments.getComments>;
 }) {
   const params = useParams<{ postId: Id<"posts"> }>();
   const data = usePreloadedQuery(props.preloadedComments);
