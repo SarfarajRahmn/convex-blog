@@ -11,6 +11,9 @@ importers:
       '@convex-dev/better-auth':
         specifier: ^0.10.10
         version: 0.10.10(@better-auth/core@1.4.9(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.6))(jose@6.1.3)(kysely@0.28.10)(nanostores@1.1.0))(@better-auth/utils@0.3.0)(@standard-schema/spec@1.1.0)(better-auth@1.4.9(next@16.1.4(@babel/core@7.28.6)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(better-call@1.1.7(zod@4.3.6))(convex@1.31.6(react@19.2.3))(nanostores@1.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)
+      '@convex-dev/presence':
+        specifier: ^0.3.0
+        version: 0.3.0(convex@1.31.6(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.71.1(react@19.2.3))
@@ -211,6 +214,20 @@ packages:
       convex: ^1.25.0
       react: ^18.3.1 || ^19.0.0
       react-dom: ^18.3.1 || ^19.0.0
+
+  '@convex-dev/presence@0.3.0':
+    resolution: {integrity: sha512-adV+ao1L77u+egobyJabNwuai/0y/VgzMbqZiy+Q49JmX6fbSaiYg6FpFVACqPaq3giOfjrN2k+5mK2jTAUG0g==}
+    peerDependencies:
+      convex: ^1.24.8
+      expo-crypto: '>=14.1.0'
+      react: ~18.3.1 || ^19.0.0
+      react-dom: ~18.3.1 || ^19.0.0
+      react-native: '>=0.79.0'
+    peerDependenciesMeta:
+      expo-crypto:
+        optional: true
+      react-native:
+        optional: true
 
   '@emnapi/core@1.8.1':
     resolution: {integrity: sha512-AvT9QFpxK0Zd8J0jopedNm+w/2fIzvtPKPjqyw9jwvBaReTTqPBk9Hixaz7KbjimP+QNz605/XnjFcDAL2pqBg==}
@@ -3424,6 +3441,12 @@ snapshots:
       - hono
       - nanostores
       - typescript
+
+  '@convex-dev/presence@0.3.0(convex@1.31.6(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+    dependencies:
+      convex: 1.31.6(react@19.2.3)
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   '@emnapi/core@1.8.1':
     dependencies:

@@ -6,10 +6,18 @@ import { api } from "@/convex/_generated/api";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Metadata } from "next";
 export const runtime = "nodejs";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 export const revalidate = 20;
+
+export const metadata: Metadata = {
+  title: "Blog | Convex Course",
+  description: "Read latest blogs and articles about convex course",
+  category: "blog",
+  authors: [{ name: "Sarfaraj Rahman" }],
+};
 
 export default function BlogPage() {
   return (

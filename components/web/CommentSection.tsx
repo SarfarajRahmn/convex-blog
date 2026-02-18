@@ -21,7 +21,7 @@ import { Preloaded, usePreloadedQuery } from "convex/react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export function CommentSection(props: {
-  preloadedComments: Preloaded<typeof api.comments.getComments>;
+  preloadedComments: Preloaded<typeof api.comments.getCommentsByPostId>;
 }) {
   const params = useParams<{ postId: Id<"posts"> }>();
   const data = usePreloadedQuery(props.preloadedComments);
