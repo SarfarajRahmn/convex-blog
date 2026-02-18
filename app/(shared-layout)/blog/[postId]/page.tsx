@@ -15,11 +15,12 @@ interface PostIdRouteProps {
 export default async function PostIdRoute({ params }: PostIdRouteProps) {
   const { postId } = await params;
 
-  const preloadedComments = await preloadQuery(api.comments.getComments, {
-    postId,
-  });
-
-  const post = await fetchQuery(api.posts.getPostById, { postId });
+  const [post, preloadedComments] = await Promise.all([
+    fetchQuery(api.posts.getPostById, { postId: postId }),
+    preloadQuery(api.comments.getComments, {
+      postId: postId,
+    }),
+  ]);
 
   if (!post) {
     return (

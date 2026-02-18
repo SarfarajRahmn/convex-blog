@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
-import dns from "node:dns";
+// import dns from "node:dns";
 
-dns.setDefaultResultOrder("ipv4first");
+// dns.setDefaultResultOrder("ipv4first");
 
 const nextConfig: NextConfig = {
   images: {

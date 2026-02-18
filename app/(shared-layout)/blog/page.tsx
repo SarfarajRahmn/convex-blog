@@ -1,4 +1,3 @@
-import { fetchIPv4 } from "@/lib/fetch-ipv4";
 import { fetchQuery } from "convex/nextjs";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -37,7 +36,7 @@ async function LoadBlogList() {
   const url = `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/query`;
   console.log("Fetching from:", url);
 
-  const response = await fetchIPv4(url, {
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
