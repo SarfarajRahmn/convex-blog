@@ -1,97 +1,72 @@
-import { fetchQuery } from "convex/nextjs";
+/* eslint-disable @next/next/no-img-element */
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
+import { fetchQuery } from "convex/nextjs";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { connection } from "next/server";
 import { Suspense } from "react";
-import { Metadata } from "next";
-export const runtime = "nodejs";
-
-export const dynamic = "force-static";
-export const revalidate = 20;
 
 export const metadata: Metadata = {
-  title: "Blog | Convex Course",
-  description: "Read latest blogs and articles about convex course",
-  category: "blog",
+  title: "Blog | Next.js 16 Tutorial",
+  description: "Read our latest articles and insights.",
+  category: "Web development",
   authors: [{ name: "Sarfaraj Rahman" }],
 };
 
 export default function BlogPage() {
   return (
-    <>
+    <div className="py-12">
       <div className="text-center pb-12">
         <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
           Our Blog
         </h1>
         <p className="pt-4 max-w-2xl mx-auto text-xl text-muted-foreground">
-          Insights, thoughts and trends from our team
+          Insights, thoughts, and trends from our team.
         </p>
       </div>
 
       <Suspense fallback={<SkeletonLoadingUi />}>
         <LoadBlogList />
       </Suspense>
-    </>
+    </div>
   );
 }
 
 async function LoadBlogList() {
-  await new Promise((resolve) => setTimeout(resolve, 10));
+  // "use cache";
+  // cacheLife("hours");
+  // cacheTag("blog");
 
-  const url = `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/query`;
-  console.log("Fetching from:", url);
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      path: "posts:getPosts",
-      args: {},
-      format: "json",
-    }),
-  });
-
-  const parsed = await response.json();
-  const data = parsed.value as Array<{
-    _id: string;
-    _creationTime: number;
-    title: string;
-    body: string;
-    authorId: string;
-    imageStorageId?: string;
-    imageUrl: string | null;
-  }>;
+  await connection();
+  const data = await fetchQuery(api.posts.getPosts);
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 ">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {data?.map((post) => (
         <Card key={post._id} className="pt-0">
           <div className="relative h-48 w-full overflow-hidden">
             <Image
               src={
                 post.imageUrl ??
-                "https://images.unsplash.com/photo-1709884735017-114f4a31f944?q=80&w=1229&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                "https://images.unsplash.com/photo-1761019646782-4bc46ba43fe9?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               }
-              alt="blog image"
+              alt="image"
               fill
-              unoptimized
-              className="w-full h-full object-cover rounded-t-lg"
+              className="rounded-t-lg object-cover"
             />
           </div>
+
           <CardContent>
             <Link href={`/blog/${post._id}`}>
-              <h1 className="text-2xl font-bold hover:text-primary transition-colors">
+              <h1 className="text-2xl font-bold hover:text-primary">
                 {post.title}
               </h1>
-              <p className="text-muted-foreground line-clamp-3 pt-2">
-                {post.body}
-              </p>
             </Link>
+            <p className="text-muted-foreground line-clamp-3">{post.body}</p>
           </CardContent>
           <CardFooter>
             <Link
@@ -100,7 +75,7 @@ async function LoadBlogList() {
               })}
               href={`/blog/${post._id}`}
             >
-              Read More...
+              Read more
             </Link>
           </CardFooter>
         </Card>
@@ -111,14 +86,14 @@ async function LoadBlogList() {
 
 function SkeletonLoadingUi() {
   return (
-    <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-3 ">
+    <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-3">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="flex flex-col space-y-3">
+        <div className="flex flex-col space-y-3" key={i}>
           <Skeleton className="h-48 w-full rounded-xl" />
           <div className="space-y-2 flex flex-col">
             <Skeleton className="h-6 w-3/4" />
             <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-2/" />
           </div>
         </div>
       ))}
