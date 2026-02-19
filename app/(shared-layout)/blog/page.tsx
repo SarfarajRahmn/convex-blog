@@ -81,7 +81,7 @@ async function LoadBlogList() {
               fill
               unoptimized
               className="w-full h-full object-cover rounded-t-lg"
-            />{" "}
+            />
           </div>
           <CardContent>
             <Link href={`/blog/${post._id}`}>

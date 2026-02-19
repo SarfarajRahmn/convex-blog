@@ -94,7 +94,7 @@ export default async function PostIdRoute({ params }: PostIdRouteProps) {
 
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">
-            Posted on:{" "}
+            Posted on:
             {new Date(post._creationTime).toLocaleDateString("en-US")}
           </p>
           {userId && <PostPresence roomId={post._id} userId={userId} />}

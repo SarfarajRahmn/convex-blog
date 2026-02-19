@@ -128,9 +128,8 @@ export default function SignUpPage() {
             <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
-                  {" "}
-                  <Loader2 className="animate-spin size-4" />{" "}
-                  <span>loading...</span>{" "}
+                  <Loader2 className="animate-spin size-4" />
+                  <span>loading...</span>
                 </>
               ) : (
                 "Sign Up"

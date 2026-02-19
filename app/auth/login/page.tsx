@@ -46,7 +46,7 @@ export default function LoginPage() {
         fetchOptions: {
           onSuccess: () => {
             toast.success("Logged in successfully");
-            router.push("/test");
+            router.push("/blog");
           },
           onError: (error) => {
             toast.error(error.error.message);
@@ -109,9 +109,8 @@ export default function LoginPage() {
             <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
-                  {" "}
-                  <Loader2 className="animate-spin size-4" />{" "}
-                  <span>loading...</span>{" "}
+                  <Loader2 className="animate-spin size-4" />
+                  <span>loading...</span>
                 </>
               ) : (
                 "Log in"
