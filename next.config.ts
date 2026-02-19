@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 // dns.setDefaultResultOrder("ipv4first");
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
   images: {
     remotePatterns: [
       {
