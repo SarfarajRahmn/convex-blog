@@ -13,6 +13,16 @@ const nextConfig: NextConfig = {
         port: "",
       },
       {
+        hostname: "doting-hound-343.convex.cloud",
+        protocol: "https",
+        port: "",
+      },
+      {
+        hostname: "doting-hound-343.convex.site",
+        protocol: "https",
+        port: "",
+      },
+      {
         hostname: "laudable-crab-978.convex.cloud",
         protocol: "https",
         port: "",

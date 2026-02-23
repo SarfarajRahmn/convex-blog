@@ -16,7 +16,7 @@ import z from "zod";
 import { toast } from "sonner";
 import { useTransition } from "react";
 import { Separator } from "../ui/separator";
-
+import { authClient } from "@/lib/auth-client";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
@@ -26,6 +26,8 @@ export function CommentSection(props: {
   const params = useParams<{ postId: Id<"posts"> }>();
   const data = usePreloadedQuery(props.preloadedComments);
   const [isPending, startTransition] = useTransition();
+  const { data: session } = authClient.useSession();
+  const authorName = session?.user?.name || "Anonymous";
 
   const createComment = useMutation(api.comments.createComment);
   const form = useForm({
@@ -65,7 +67,7 @@ export function CommentSection(props: {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field>
-                <FieldLabel>Full Name</FieldLabel>
+                <FieldLabel>Comment as {authorName}</FieldLabel>
                 <Textarea
                   aria-invalid={fieldState.invalid}
                   placeholder="Share your thoughts"
@@ -92,7 +94,7 @@ export function CommentSection(props: {
 
         {data?.length > 0 && <Separator />}
 
-        <section className="space-y-6">
+        <section className="space-y-6 h-60 overflow-y-scroll scrollbar-hide pr-3">
           {data?.map((comment) => (
             <div key={comment._id} className="flex gap-4">
               <Avatar className="size-10 shrink-0">
