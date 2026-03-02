@@ -1,4 +1,5 @@
 Convex Media 🎬
+
 A modern, high-performance web application built with Next.js 15, Convex, and Better-Auth. This project demonstrates a clean, scalable architecture with real-time data synchronization, robust authentication, and optimized caching strategies.
 
 🔗 Live Demo: convexmedia.vercel.app
