@@ -29,9 +29,9 @@ export default function BlogPage() {
         </p>
       </div>
 
-      <Suspense fallback={<SkeletonLoadingUi />}>
-        <LoadBlogList />
-      </Suspense>
+      {/* <Suspense fallback={<SkeletonLoadingUi />}> */}
+      <LoadBlogList />
+      {/* </Suspense> */}
     </div>
   );
 }
