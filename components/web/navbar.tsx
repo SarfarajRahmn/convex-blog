@@ -16,8 +16,8 @@ export function Navbar() {
       <div className="flex items-center gap-8">
         <Link href="/">
           <h1 className="text-3xl font-bold">
-            FRZ
-            <span className="text-primary">Blog</span>
+            CONVEX
+            <span className="text-primary">Media</span>
           </h1>
         </Link>
 
