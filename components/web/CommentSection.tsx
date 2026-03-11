@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, MessageSquare } from "lucide-react";
+import { Loader2, MessageSquare, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,17 @@ import z from "zod";
 import { toast } from "sonner";
 import { useTransition } from "react";
 import { Separator } from "../ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 import { authClient } from "@/lib/auth-client";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -30,6 +41,7 @@ export function CommentSection(props: {
   const authorName = session?.user?.name || "Anonymous";
 
   const createComment = useMutation(api.comments.createComment);
+  const deleteComment = useMutation(api.comments.deleteComment);
   const form = useForm({
     resolver: zodResolver(commentSchema),
     defaultValues: {
@@ -118,11 +130,48 @@ export function CommentSection(props: {
                       <p className="font-semibold text-sm">
                         {comment.authorName}
                       </p>
-                      <p className="text-muted-foreground text-xs">
-                        {new Date(comment._creationTime).toLocaleDateString(
-                          "en-US",
+                      <div className="flex items-center gap-2">
+                        <p className="text-muted-foreground text-xs">
+                          {new Date(comment._creationTime).toLocaleDateString(
+                            "en-US",
+                          )}
+                        </p>
+                        {session?.user?.name === comment.authorName && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                className="text-muted-foreground hover:text-destructive transition-colors"
+                                aria-label="Delete comment"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete comment?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. Your comment will be permanently removed.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={async () => {
+                                    try {
+                                      await deleteComment({ commentId: comment._id });
+                                      toast.success("Comment deleted");
+                                    } catch {
+                                      toast.error("Failed to delete comment");
+                                    }
+                                  }}
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         )}
-                      </p>
+                      </div>
                     </div>
 
                     <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">

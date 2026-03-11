@@ -17,6 +17,31 @@ export const getCommentsByPostId = query({
   },
 });
 
+export const deleteComment = mutation({
+  args: {
+    commentId: v.id("comments"),
+  },
+  handler: async (ctx, args) => {
+    const user = await authComponent.safeGetAuthUser(ctx);
+
+    if (!user) {
+      throw new ConvexError("Not Authenticated");
+    }
+
+    const comment = await ctx.db.get(args.commentId);
+
+    if (!comment) {
+      throw new ConvexError("Comment not found");
+    }
+
+    if (comment.authorId !== user._id) {
+      throw new ConvexError("Not authorized to delete this comment");
+    }
+
+    await ctx.db.delete(args.commentId);
+  },
+});
+
 export const createComment = mutation({
   args: {
     body: v.string(),
