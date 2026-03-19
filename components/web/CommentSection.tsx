@@ -3,6 +3,7 @@
 import { Loader2, MessageSquare, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Controller, useForm } from "react-hook-form";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { commentSchema } from "@/app/schemas/comment";
 import { Field, FieldError, FieldLabel } from "../ui/field";
@@ -73,36 +74,47 @@ export function CommentSection(props: {
         <h2 className="text-xl font-bold">{data.length} Comments</h2>
       </CardHeader>
       <CardContent className="space-y-8">
-        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-          <Controller
-            name="body"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>Comment as {authorName}</FieldLabel>
-                <Textarea
-                  aria-invalid={fieldState.invalid}
-                  placeholder="Share your thoughts"
-                  {...field}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+        {session ? (
+          <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+            <Controller
+              name="body"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Comment as {authorName}</FieldLabel>
+                  <Textarea
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Share your thoughts"
+                    {...field}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
 
-          <Button disabled={isPending}>
-            {isPending ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                <span>Loading...</span>
-              </>
-            ) : (
-              <span>Comment</span>
-            )}
-          </Button>
-        </form>
+            <Button disabled={isPending}>
+              {isPending ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  <span>Loading...</span>
+                </>
+              ) : (
+                <span>Comment</span>
+              )}
+            </Button>
+          </form>
+        ) : (
+          <div className="flex flex-col items-center justify-center p-6 border border-dashed rounded-lg bg-muted/10">
+            <p className="mb-4 text-sm text-muted-foreground">
+              You must be logged in to share your thoughts.
+            </p>
+            <Link href="/auth/login">
+              <Button variant="outline">Log in to comment</Button>
+            </Link>
+          </div>
+        )}
 
         {/* Only show separator and comments section if there are comments */}
         {data?.length > 0 && (
