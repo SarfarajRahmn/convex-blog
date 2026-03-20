@@ -11,7 +11,8 @@ interface iAppProps {
 }
 
 export function PostPresence({ roomId, userId }: iAppProps) {
-  const presenceState = usePresence(api.presence, roomId, userId);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const presenceState = usePresence(api.presence as any, roomId, userId);
 
   if (!presenceState || presenceState.length === 0) {
     return null;
