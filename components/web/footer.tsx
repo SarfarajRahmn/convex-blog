@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, Twitter } from "lucide-react";
+import { Github, PersonStanding, Twitter } from "lucide-react";
 import { CurrentYear } from "./CurrentYear";
 
 const linkGroups = [
@@ -61,6 +61,15 @@ export function Footer() {
                 className="glass glass-sheen flex size-10 items-center justify-center rounded-full transition-transform hover:-translate-y-0.5"
               >
                 <Twitter className="size-4" />
+              </a>
+              <a
+                href="https://farazrahmn.vercel.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Website"
+                className="glass glass-sheen flex size-10 items-center justify-center rounded-full transition-transform hover:-translate-y-0.5"
+              >
+                <PersonStanding className="size-4" />
               </a>
             </div>
           </div>

@@ -128,7 +128,7 @@ function FeaturedPost({ post }: { post: Post }) {
   return (
     <Card className="group glass glass-sheen overflow-hidden border-0 p-0 transition-all duration-300 hover:-translate-y-1">
       <div className="grid md:grid-cols-2">
-        <div className="relative h-60 w-full overflow-hidden md:h-full md:min-h-80">
+        <div className="relative h-60 w-full overflow-hidden sm:h-72 md:h-96">
           <PostMedia post={post} sizes="(max-width: 768px) 100vw, 50vw" />
         </div>
         <div className="flex flex-col justify-center p-6 sm:p-10">

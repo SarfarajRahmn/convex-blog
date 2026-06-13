@@ -94,7 +94,7 @@ export default async function PostIdRoute({ params }: PostIdRouteProps) {
   const authorInitial = post.authorName.charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="relative mx-auto max-w-2xl px-4 py-6 duration-500 animate-in fade-in sm:py-8">
+    <div className="relative mx-auto max-w-6xl px-4 md:px-0 py-6 duration-500 animate-in fade-in sm:py-8">
       <ReadingProgress />
 
       <Link
