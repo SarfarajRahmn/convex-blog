@@ -2,6 +2,7 @@
 
 import { createBlogAction } from "@/app/actions";
 import { postSchema } from "@/app/schemas/blog";
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -14,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { getReadingTime } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGSAP } from "@gsap/react";
+import { useMutation } from "convex/react";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
 import {
@@ -50,6 +52,7 @@ function formatBytes(bytes: number): string {
 export default function CreateRoute() {
   const [isPending, startTransition] = useTransition();
   const container = useRef<HTMLDivElement>(null);
+  const generateUploadUrl = useMutation(api.posts.generateImageUploadUrl);
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
@@ -154,18 +157,52 @@ export default function CreateRoute() {
     setMediaFile(kind, file, onChange);
   }
 
+  /** Upload a file straight from the browser to Convex storage. */
+  async function uploadToConvex(file: File): Promise<string> {
+    const uploadUrl = await generateUploadUrl();
+    const res = await fetch(uploadUrl, {
+      method: "POST",
+      headers: { "Content-Type": file.type },
+      body: file,
+    });
+    if (!res.ok) {
+      throw new Error("Upload failed");
+    }
+    const { storageId } = await res.json();
+    return storageId as string;
+  }
+
   function onSubmit(values: z.infer<typeof postSchema>) {
+    if (!values.image && !values.video) {
+      toast.error("Please add an image or a video");
+      return;
+    }
+
     startTransition(async () => {
-      const result = await createBlogAction(values);
+      try {
+        const [imageStorageId, videoStorageId] = await Promise.all([
+          values.image ? uploadToConvex(values.image) : undefined,
+          values.video ? uploadToConvex(values.video) : undefined,
+        ]);
 
-      if (result?.error) {
-        toast.error(result.error);
-        return;
+        const result = await createBlogAction({
+          title: values.title,
+          content: values.content,
+          imageStorageId,
+          videoStorageId,
+        });
+
+        if (result?.error) {
+          toast.error(result.error);
+          return;
+        }
+
+        // No error result means the action succeeded and is redirecting.
+        celebrate();
+        toast.success("Post published! Redirecting…");
+      } catch {
+        toast.error("Upload failed. Please try again.");
       }
-
-      // No error result means the action succeeded and is redirecting.
-      celebrate();
-      toast.success("Post published! Redirecting…");
     });
   }
 

@@ -45,7 +45,7 @@ export function Footer() {
             </p>
             <div className="flex gap-3">
               <a
-                href="https://github.com"
+                href="https://github.com/SarfarajRahmn"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
@@ -54,7 +54,7 @@ export function Footer() {
                 <Github className="size-4" />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://x.com/FarazVille"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Twitter"

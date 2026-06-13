@@ -23,3 +23,14 @@ export const postSchema = z.object({
     .refine((file) => file.type.startsWith("video/"), "File must be a video")
     .optional(),
 });
+
+/** Server-action input: files are uploaded client-side, only IDs are sent. */
+export const createPostInputSchema = z.object({
+  title: z
+    .string()
+    .min(3, "Title must be at least 3 characters long")
+    .max(50, "Title must be at most 50 characters long"),
+  content: z.string().min(10, "Content must be at least 10 characters long"),
+  imageStorageId: z.string().optional(),
+  videoStorageId: z.string().optional(),
+});
