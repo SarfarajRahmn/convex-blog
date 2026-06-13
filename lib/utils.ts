@@ -32,8 +32,13 @@ export function slugify(text: string): string {
 
 /**
  * Build a readable post URL like `/blog/my-post-title`.
+ * Prefers the post's stored unique slug; falls back to slugifying the title.
  */
-export function postPath(post: { _id: string; title: string }): string {
-  const slug = slugify(post.title);
+export function postPath(post: {
+  _id: string;
+  title: string;
+  slug?: string | null;
+}): string {
+  const slug = post.slug ?? slugify(post.title);
   return slug ? `/blog/${slug}` : `/blog/${post._id}`;
 }

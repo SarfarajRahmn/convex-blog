@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Lock, Mail, User } from "lucide-react";
+import { AlertCircle, Loader2, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -24,21 +25,30 @@ export default function SignUpPage() {
   });
 
   async function onSubmit(data: z.infer<typeof signUpSchema>) {
+    form.clearErrors("root");
     startTransition(async () => {
-      await authClient.signUp.email({
-        email: data.email,
-        name: data.name,
-        password: data.password,
-        fetchOptions: {
-          onSuccess: () => {
-            toast.success("Account created! Welcome aboard.");
-            router.push("/");
+      try {
+        await authClient.signUp.email({
+          email: data.email,
+          name: data.name,
+          password: data.password,
+          fetchOptions: {
+            onSuccess: () => {
+              toast.success("Account created! Welcome aboard.");
+              router.push("/");
+            },
+            onError: (ctx) => {
+              const message = getAuthErrorMessage(ctx);
+              form.setError("root", { message });
+              toast.error(message);
+            },
           },
-          onError: (error) => {
-            toast.error(error.error.message);
-          },
-        },
-      });
+        });
+      } catch (error) {
+        const message = getAuthErrorMessage(error);
+        form.setError("root", { message });
+        toast.error(message);
+      }
     });
   }
 
@@ -117,9 +127,13 @@ export default function SignUpPage() {
           />
 
           {form.formState.errors.root && (
-            <p className="text-sm text-destructive font-medium text-center">
-              {form.formState.errors.root.message}
-            </p>
+            <div
+              role="alert"
+              className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm font-medium text-destructive"
+            >
+              <AlertCircle className="mt-0.5 size-4 shrink-0" />
+              <span>{form.formState.errors.root.message}</span>
+            </div>
           )}
 
           <Button type="submit" className="w-full h-11 rounded-xl" disabled={isPending}>

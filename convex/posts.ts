@@ -1,7 +1,48 @@
 import { mutation, query } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { authComponent } from "./auth";
 import { Doc } from "./_generated/dataModel";
+
+/** Turn a title into a URL-friendly slug (matches lib/utils slugify). */
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Generate a slug that is unique across all posts. If the base slug is taken,
+ * it "self-heals" by appending an incrementing suffix: `my-title-2`, `-3`, …
+ */
+async function generateUniqueSlug(
+  ctx: MutationCtx,
+  title: string,
+): Promise<string> {
+  const base = slugify(title) || "post";
+
+  let candidate = base;
+  let suffix = 2;
+
+  // Probe the index until we find a free slug.
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const existing = await ctx.db
+      .query("posts")
+      .withIndex("by_slug", (q) => q.eq("slug", candidate))
+      .first();
+
+    if (!existing) {
+      return candidate;
+    }
+
+    candidate = `${base}-${suffix}`;
+    suffix += 1;
+  }
+}
 
 export const createPost = mutation({
   args: {
@@ -17,15 +58,36 @@ export const createPost = mutation({
       throw new ConvexError("Not authenticated");
     }
 
+    const slug = await generateUniqueSlug(ctx, args.title);
+
     const blogArticle = await ctx.db.insert("posts", {
       body: args.body,
       title: args.title,
       authorId: user._id,
+      slug,
       imageStorageId: args.imageStorageId,
       videoStorageId: args.videoStorageId,
     });
 
     return blogArticle;
+  },
+});
+
+/** One-time backfill: assigns unique slugs to posts created before slugs existed. */
+export const backfillSlugs = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const posts = await ctx.db.query("posts").order("asc").collect();
+
+    let updated = 0;
+    for (const post of posts) {
+      if (post.slug) continue;
+      const slug = await generateUniqueSlug(ctx, post.title);
+      await ctx.db.patch(post._id, { slug });
+      updated += 1;
+    }
+
+    return { updated };
   },
 });
 
@@ -102,16 +164,6 @@ export const getPostById = query({
   },
 });
 
-/** Turn a title into a URL-friendly slug (matches lib/utils slugify). */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export const getPostBySlug = query({
   args: {
     slug: v.string(),
@@ -119,8 +171,17 @@ export const getPostBySlug = query({
   handler: async (ctx, args) => {
     const target = slugify(decodeURIComponent(args.slug));
 
-    const posts = await ctx.db.query("posts").order("desc").collect();
-    const post = posts.find((p) => slugify(p.title) === target);
+    // Fast path: look up by the stored unique slug.
+    let post = await ctx.db
+      .query("posts")
+      .withIndex("by_slug", (q) => q.eq("slug", target))
+      .first();
+
+    // Legacy fallback: posts created before slugs existed.
+    if (!post) {
+      const posts = await ctx.db.query("posts").order("desc").collect();
+      post = posts.find((p) => (p.slug ?? slugify(p.title)) === target) ?? null;
+    }
 
     if (!post) {
       return null;
