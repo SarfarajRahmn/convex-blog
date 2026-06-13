@@ -37,12 +37,12 @@ export function Navbar() {
   }
 
   return (
-    <header className="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-      <nav className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 flex items-center justify-between">
+    <header className="sticky top-3 z-50 w-full px-3 sm:px-4">
+      <nav className="glass glass-sheen mx-auto flex max-w-6xl items-center justify-between rounded-2xl px-4 py-3 md:px-6">
         {/* Logo */}
         <Link href="/" onClick={() => setMobileOpen(false)}>
           <h1 className="text-2xl font-bold tracking-tight">
-            CONVEX<span className="text-primary">Media</span>
+            CONVEX<span className="text-aurora">Media</span>
           </h1>
         </Link>
 
@@ -61,25 +61,30 @@ export function Navbar() {
 
         {/* Desktop Auth + Theme */}
         <div className="hidden md:flex items-center gap-2">
-          {!isLoading && (
-            isAuthenticated ? (
+          {!isLoading &&
+            (isAuthenticated ? (
               <Button size="sm" variant="outline" onClick={handleSignOut}>
                 Logout
               </Button>
             ) : (
               <>
-                <Link className={buttonVariants({ size: "sm" })} href="/auth/sign-up">
+                <Link
+                  className={buttonVariants({ size: "sm" })}
+                  href="/auth/sign-up"
+                >
                   Sign Up
                 </Link>
                 <Link
-                  className={buttonVariants({ variant: "secondary", size: "sm" })}
+                  className={buttonVariants({
+                    variant: "secondary",
+                    size: "sm",
+                  })}
                   href="/auth/login"
                 >
                   Log In
                 </Link>
               </>
-            )
-          )}
+            ))}
           <ThemeToggle />
         </div>
 
@@ -92,29 +97,40 @@ export function Navbar() {
             onClick={() => setMobileOpen((prev) => !prev)}
             aria-label="Toggle menu"
           >
-            {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            {mobileOpen ? (
+              <X className="size-5" />
+            ) : (
+              <Menu className="size-5" />
+            )}
           </Button>
         </div>
       </nav>
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-md px-4 pb-6 pt-4 space-y-1 animate-in slide-in-from-top-2 duration-200">
+        <div className="glass mx-3 mt-2 space-y-1 rounded-2xl px-4 pb-6 pt-4 duration-200 animate-in slide-in-from-top-2 md:hidden">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className={buttonVariants({ variant: "ghost", className: "w-full justify-start" })}
+              className={buttonVariants({
+                variant: "ghost",
+                className: "w-full justify-start",
+              })}
             >
               {link.label}
             </Link>
           ))}
 
           <div className="pt-3 border-t border-border/50 flex flex-col gap-2">
-            {!isLoading && (
-              isAuthenticated ? (
-                <Button variant="outline" className="w-full" onClick={handleSignOut}>
+            {!isLoading &&
+              (isAuthenticated ? (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleSignOut}
+                >
                   Logout
                 </Button>
               ) : (
@@ -129,13 +145,15 @@ export function Navbar() {
                   <Link
                     href="/auth/login"
                     onClick={() => setMobileOpen(false)}
-                    className={buttonVariants({ variant: "secondary", className: "w-full" })}
+                    className={buttonVariants({
+                      variant: "secondary",
+                      className: "w-full",
+                    })}
                   >
                     Log In
                   </Link>
                 </>
-              )
-            )}
+              ))}
           </div>
         </div>
       )}

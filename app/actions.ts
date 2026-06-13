@@ -4,46 +4,64 @@ import z from "zod";
 import { postSchema } from "./schemas/blog";
 import { fetchMutation } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { redirect } from "next/navigation";
 import { getToken } from "@/lib/auth-server";
 import { updateTag } from "next/cache";
+
+type UploadToken = Awaited<ReturnType<typeof getToken>>;
+
+/** Upload a single file to Convex storage and return its storageId. */
+async function uploadFile(
+  file: File,
+  token: UploadToken,
+): Promise<Id<"_storage">> {
+  const uploadUrl = await fetchMutation(
+    api.posts.generateImageUploadUrl,
+    {},
+    { token },
+  );
+
+  const result = await fetch(uploadUrl, {
+    method: "POST",
+    headers: { "Content-Type": file.type },
+    body: file,
+  });
+
+  if (!result.ok) {
+    throw new Error("Upload failed");
+  }
+
+  const { storageId } = await result.json();
+  return storageId as Id<"_storage">;
+}
 
 export async function createBlogAction(values: z.infer<typeof postSchema>) {
   try {
     const parsed = postSchema.safeParse(values);
 
     if (!parsed.success) {
-      throw new Error("something went wrong");
+      return { error: "Please check the form and try again" };
+    }
+
+    const { image, video, title, content } = parsed.data;
+
+    if (!image && !video) {
+      return { error: "Please add an image or a video" };
     }
 
     const token = await getToken();
-    const imageUrl = await fetchMutation(
-      api.posts.generateImageUploadUrl,
-      {},
-      { token },
-    );
 
-    const uploadResult = await fetch(imageUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": parsed.data.image.type,
-      },
-      body: parsed.data.image,
-    });
+    const imageStorageId = image ? await uploadFile(image, token) : undefined;
+    const videoStorageId = video ? await uploadFile(video, token) : undefined;
 
-    if (!uploadResult.ok) {
-      return {
-        error: "Failed to upload image",
-      };
-    }
-
-    const { storageId } = await uploadResult.json();
     await fetchMutation(
       api.posts.createPost,
       {
-        body: parsed.data.content,
-        title: parsed.data.title,
-        imageStorageId: storageId,
+        body: content,
+        title,
+        imageStorageId,
+        videoStorageId,
       },
       { token },
     );

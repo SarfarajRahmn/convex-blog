@@ -7,7 +7,8 @@ export const createPost = mutation({
   args: {
     title: v.string(),
     body: v.string(),
-    imageStorageId: v.id("_storage"),
+    imageStorageId: v.optional(v.id("_storage")),
+    videoStorageId: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
     const user = await authComponent.safeGetAuthUser(ctx);
@@ -21,6 +22,7 @@ export const createPost = mutation({
       title: args.title,
       authorId: user._id,
       imageStorageId: args.imageStorageId,
+      videoStorageId: args.videoStorageId,
     });
 
     return blogArticle;
@@ -39,9 +41,15 @@ export const getPosts = query({
             ? await ctx.storage.getUrl(post.imageStorageId)
             : null;
 
+        const resolvedVideoUrl =
+          post.videoStorageId !== undefined
+            ? await ctx.storage.getUrl(post.videoStorageId)
+            : null;
+
         return {
           ...post,
           imageUrl: resolvedImageUrl,
+          videoUrl: resolvedVideoUrl,
         };
       }),
     );
@@ -77,9 +85,15 @@ export const getPostById = query({
         ? await ctx.storage.getUrl(post.imageStorageId)
         : null;
 
+    const resolvedVideoUrl =
+      post?.videoStorageId !== undefined
+        ? await ctx.storage.getUrl(post.videoStorageId)
+        : null;
+
     return {
       ...post,
       imageUrl: resolvedImageUrl,
+      videoUrl: resolvedVideoUrl,
     };
   },
 });

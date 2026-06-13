@@ -1,4 +1,6 @@
 import { Navbar } from "@/components/web/navbar";
+import { Footer } from "@/components/web/footer";
+import { ScrollToTop } from "@/components/web/ScrollToTop";
 
 export default function SharedLayout({
   children,
@@ -6,11 +8,13 @@ export default function SharedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div>
+    <div className="flex min-h-screen flex-col">
       <Navbar />
-      <div className="max-w-7xl mx-auto w-full px-4 md:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl flex-1 px-4 md:px-6 lg:px-8">
         {children}
       </div>
+      <Footer />
+      <ScrollToTop />
     </div>
   );
 }

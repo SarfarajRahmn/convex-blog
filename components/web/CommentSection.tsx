@@ -68,7 +68,7 @@ export function CommentSection(props: {
   }
 
   return (
-    <Card>
+    <Card className="glass border-0">
       <CardHeader className="flex flex-row items-center gap-2 border-b">
         <MessageSquare className="size-5" />
         <h2 className="text-xl font-bold">{data.length} Comments</h2>
@@ -160,9 +160,12 @@ export function CommentSection(props: {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete comment?</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                  Delete comment?
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This action cannot be undone. Your comment will be permanently removed.
+                                  This action cannot be undone. Your comment
+                                  will be permanently removed.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -170,7 +173,9 @@ export function CommentSection(props: {
                                 <AlertDialogAction
                                   onClick={async () => {
                                     try {
-                                      await deleteComment({ commentId: comment._id });
+                                      await deleteComment({
+                                        commentId: comment._id,
+                                      });
                                       toast.success("Comment deleted");
                                     } catch {
                                       toast.error("Failed to delete comment");
