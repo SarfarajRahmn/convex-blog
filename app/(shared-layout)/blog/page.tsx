@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BlogSearch } from "@/components/web/BlogSearch";
 import { api } from "@/convex/_generated/api";
-import { getReadingTime, formatDate } from "@/lib/utils";
+import { getReadingTime, formatDate, postPath } from "@/lib/utils";
 import { fetchQuery } from "convex/nextjs";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
@@ -142,14 +142,14 @@ function FeaturedPost({ post }: { post: Post }) {
               {getReadingTime(post.body)} min read
             </span>
           </div>
-          <Link href={`/blog/${post._id}`}>
+          <Link href={postPath(post)}>
             <h2 className="text-2xl font-extrabold tracking-tight transition-colors hover:text-primary sm:text-4xl">
               {post.title}
             </h2>
           </Link>
           <p className="mt-3 line-clamp-3 text-muted-foreground">{post.body}</p>
           <Link
-            href={`/blog/${post._id}`}
+            href={postPath(post)}
             className={buttonVariants({ className: "mt-6 w-fit gap-2" })}
           >
             Read article
@@ -179,7 +179,7 @@ function PostCard({ post }: { post: Post }) {
             {getReadingTime(post.body)} min read
           </span>
         </div>
-        <Link href={`/blog/${post._id}`}>
+        <Link href={postPath(post)}>
           <h2 className="line-clamp-2 text-xl font-bold transition-colors hover:text-primary sm:text-2xl">
             {post.title}
           </h2>
@@ -191,7 +191,7 @@ function PostCard({ post }: { post: Post }) {
       <CardFooter>
         <Link
           className={buttonVariants({ className: "w-full" })}
-          href={`/blog/${post._id}`}
+          href={postPath(post)}
         >
           Read more
         </Link>

@@ -1,22 +1,22 @@
 import { buttonVariants } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { CommentSection } from "@/components/web/CommentSection";
 import { PostPresence } from "@/components/web/PostPresence";
 import { ReadingProgress } from "@/components/web/ReadingProgress";
 import { ShareButton } from "@/components/web/ShareButton";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { getToken } from "@/lib/auth-server";
 import { formatDate, getReadingTime } from "@/lib/utils";
 import { fetchQuery, preloadQuery } from "convex/nextjs";
-import { ArrowLeft, CalendarDays, Clock, FileQuestion } from "lucide-react";
+import { ArrowLeft, Clock, FileQuestion } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
 interface PostIdRouteProps {
   params: Promise<{
-    postId: Id<"posts">;
+    postId: string;
   }>;
 }
 
@@ -25,7 +25,7 @@ export async function generateMetadata({
 }: PostIdRouteProps): Promise<Metadata> {
   const { postId } = await params;
 
-  const post = await fetchQuery(api.posts.getPostById, { postId: postId });
+  const post = await fetchQuery(api.posts.getPostBySlug, { slug: postId });
 
   if (!post) {
     return {
@@ -35,8 +35,8 @@ export async function generateMetadata({
 
   return {
     title: post.title,
-    description: post.body,
-    authors: [{ name: "Jan marshal" }],
+    description: post.body.slice(0, 160),
+    authors: [{ name: post.authorName }],
   };
 }
 
@@ -45,19 +45,20 @@ export default async function PostIdRoute({ params }: PostIdRouteProps) {
 
   const token = await getToken();
 
-  const [post, preloadedComments, userId] = await Promise.all([
-    await fetchQuery(api.posts.getPostById, { postId: postId }),
-    await preloadQuery(api.comments.getCommentsByPostId, {
-      postId: postId,
-    }),
-    await fetchQuery(api.presence.getUserId, {}, { token }),
+  const post = await fetchQuery(api.posts.getPostBySlug, { slug: postId });
+
+  const [preloadedComments, userId] = await Promise.all([
+    post
+      ? preloadQuery(api.comments.getCommentsByPostId, { postId: post._id })
+      : null,
+    fetchQuery(api.presence.getUserId, {}, { token }),
   ]);
 
   // if (!userId) {
   //   return redirect("/auth/login");
   // }
 
-  if (!post) {
+  if (!post || !preloadedComments) {
     return (
       <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center">
         <div className="glass glass-sheen flex w-full flex-col items-center gap-4 rounded-3xl px-6 py-16">
@@ -85,10 +86,15 @@ export default async function PostIdRoute({ params }: PostIdRouteProps) {
     );
   }
 
-  const [firstLetter, ...restBody] = post.body;
+  const paragraphs = post.body
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  const authorInitial = post.authorName.charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="relative mx-auto max-w-3xl px-4 py-6 duration-500 animate-in fade-in sm:py-8">
+    <div className="relative mx-auto max-w-2xl px-4 py-6 duration-500 animate-in fade-in sm:py-8">
       <ReadingProgress />
 
       <Link
@@ -103,8 +109,49 @@ export default async function PostIdRoute({ params }: PostIdRouteProps) {
         Back to blog
       </Link>
 
-      {/* Media hero */}
-      <div className="glass glass-sheen relative w-full overflow-hidden rounded-3xl border-0 p-1.5">
+      {/* Post card */}
+      <article className="overflow-hidden rounded-3xl border bg-card shadow-sm">
+        {/* Author header */}
+        <header className="flex items-center gap-3 p-5 sm:px-6">
+          <Avatar className="size-11 ring-2 ring-primary/20">
+            {post.authorImage && (
+              <AvatarImage src={post.authorImage} alt={post.authorName} />
+            )}
+            <AvatarFallback className="bg-primary/15 font-semibold text-primary">
+              {authorInitial}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-semibold leading-tight">
+              {post.authorName}
+            </p>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+              <span>{formatDate(post._creationTime)}</span>
+              <span aria-hidden>·</span>
+              <span className="flex items-center gap-1">
+                <Clock className="size-3" />
+                {getReadingTime(post.body)} min read
+              </span>
+            </div>
+          </div>
+          {userId && <PostPresence roomId={post._id} userId={userId} />}
+        </header>
+
+        {/* Title + text */}
+        <div className="px-5 pb-4 sm:px-6">
+          <h1 className="text-2xl font-extrabold leading-snug tracking-tight text-foreground sm:text-3xl">
+            {post.title}
+          </h1>
+          <div className="mt-4 space-y-4 text-[1.0625rem] leading-8 text-foreground/95">
+            {paragraphs.map((paragraph, i) => (
+              <p key={i} className="whitespace-pre-wrap">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        {/* Media */}
         {post.videoUrl ? (
           <video
             src={post.videoUrl}
@@ -112,63 +159,33 @@ export default async function PostIdRoute({ params }: PostIdRouteProps) {
             controls
             playsInline
             preload="metadata"
-            className="aspect-video w-full rounded-3xl bg-black object-contain"
+            className="aspect-video w-full bg-black object-contain"
           />
-        ) : (
-          <div className="relative h-56 w-full overflow-hidden rounded-3xl sm:h-80 md:h-100">
+        ) : post.imageUrl ? (
+          <div className="relative h-64 w-full sm:h-96">
             <Image
-              src={post.imageUrl ?? FALLBACK_IMAGE}
+              src={post.imageUrl}
               alt={post.title}
               fill
-              sizes="(max-width: 768px) 100vw, 768px"
+              sizes="(max-width: 768px) 100vw, 672px"
               priority
-              className="object-cover transition-transform duration-700 hover:scale-105"
+              className="object-cover"
             />
           </div>
-        )}
-      </div>
+        ) : null}
 
-      {/* Title card overlapping the media */}
-      <div className="glass-strong relative z-10 -mt-10 mx-auto w-[92%] rounded-3xl px-6 py-7 sm:-mt-14 sm:w-[88%] sm:px-9 sm:py-8">
-        <span className="text-xs font-semibold uppercase tracking-wide text-primary">
-          Article
-        </span>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-          {post.title}
-        </h1>
-
-        <div className="mt-5 flex flex-wrap items-center gap-2">
-          <span className="glass flex items-center gap-1.5 rounded-full px-3 py-1 text-sm text-muted-foreground">
-            <CalendarDays className="size-3.5" />
-            {formatDate(post._creationTime)}
+        {/* Action bar */}
+        <div className="flex items-center justify-between gap-2 px-5 py-3 sm:px-6">
+          <span className="text-sm text-muted-foreground">
+            Enjoyed this story? Share it.
           </span>
-          <span className="glass flex items-center gap-1.5 rounded-full px-3 py-1 text-sm text-muted-foreground">
-            <Clock className="size-3.5" />
-            {getReadingTime(post.body)} min read
-          </span>
-          {userId && <PostPresence roomId={post._id} userId={userId} />}
-          <div className="ml-auto">
-            <ShareButton title={post.title} text={post.body.slice(0, 120)} />
-          </div>
+          <ShareButton title={post.title} text={post.body.slice(0, 120)} />
         </div>
-      </div>
-
-      {/* Article body */}
-      <article className="glass glass-sheen mt-6 rounded-3xl border-0 p-6 sm:mt-8 sm:p-10">
-        <p className="whitespace-pre-wrap text-base leading-relaxed text-foreground/90 sm:text-lg sm:leading-relaxed">
-          <span className="float-left mr-3 mt-1 text-6xl font-extrabold leading-none text-aurora sm:text-7xl">
-            {firstLetter}
-          </span>
-          {restBody.join("")}
-        </p>
       </article>
 
-      <Separator className="my-8 sm:my-10" />
+      <Separator className="my-8" />
 
       <CommentSection preloadedComments={preloadedComments} />
     </div>
   );
 }
-
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1761019646782-4bc46ba43fe9?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";

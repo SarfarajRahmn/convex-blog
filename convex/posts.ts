@@ -90,10 +90,60 @@ export const getPostById = query({
         ? await ctx.storage.getUrl(post.videoStorageId)
         : null;
 
+    const author = await authComponent.getAnyUserById(ctx, post.authorId);
+
     return {
       ...post,
       imageUrl: resolvedImageUrl,
       videoUrl: resolvedVideoUrl,
+      authorName: author?.name ?? "Anonymous",
+      authorImage: author?.image ?? null,
+    };
+  },
+});
+
+/** Turn a title into a URL-friendly slug (matches lib/utils slugify). */
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export const getPostBySlug = query({
+  args: {
+    slug: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const target = slugify(decodeURIComponent(args.slug));
+
+    const posts = await ctx.db.query("posts").order("desc").collect();
+    const post = posts.find((p) => slugify(p.title) === target);
+
+    if (!post) {
+      return null;
+    }
+
+    const resolvedImageUrl =
+      post.imageStorageId !== undefined
+        ? await ctx.storage.getUrl(post.imageStorageId)
+        : null;
+
+    const resolvedVideoUrl =
+      post.videoStorageId !== undefined
+        ? await ctx.storage.getUrl(post.videoStorageId)
+        : null;
+
+    const author = await authComponent.getAnyUserById(ctx, post.authorId);
+
+    return {
+      ...post,
+      imageUrl: resolvedImageUrl,
+      videoUrl: resolvedVideoUrl,
+      authorName: author?.name ?? "Anonymous",
+      authorImage: author?.image ?? null,
     };
   },
 });

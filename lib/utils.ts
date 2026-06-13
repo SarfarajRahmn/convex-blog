@@ -19,3 +19,21 @@ export function formatDate(timestamp: number): string {
     day: "numeric",
   });
 }
+
+/** Turn a title into a URL-friendly slug. */
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Build a readable post URL like `/blog/my-post-title`.
+ */
+export function postPath(post: { _id: string; title: string }): string {
+  const slug = slugify(post.title);
+  return slug ? `/blog/${slug}` : `/blog/${post._id}`;
+}
