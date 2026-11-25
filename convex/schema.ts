@@ -23,4 +23,8 @@ export default defineSchema({
     authorName: v.string(),
     body: v.string(),
   }),
+  // Newsletter signups. `_creationTime` records when each address joined.
+  subscribers: defineTable({
+    email: v.string(),
+  }).index("by_email", ["email"]),
 });

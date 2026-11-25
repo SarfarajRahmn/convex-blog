@@ -1,26 +1,39 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Mail, Send } from "lucide-react";
+import { useRef, useState, useTransition } from "react";
+import { useMutation } from "convex/react";
+import { Loader2, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { api } from "@/convex/_generated/api";
 import { Cube3D } from "./fx/Cube3D";
 import { useScrollReveal } from "./fx/use-scroll-reveal";
 
 export function NewsletterSection() {
   const container = useRef<HTMLElement>(null);
   const [email, setEmail] = useState("");
+  const [isPending, startTransition] = useTransition();
+  const subscribe = useMutation(api.newsletter.subscribe);
   useScrollReveal(container);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!valid) {
+    const address = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)) {
       toast.error("Please enter a valid email");
       return;
     }
-    toast.success("You're subscribed! 🎉");
-    setEmail("");
+
+    startTransition(async () => {
+      try {
+        await subscribe({ email: address });
+        toast.success("You're subscribed! 🎉");
+        setEmail("");
+      } catch {
+        // Keep what was typed so the visitor can try again.
+        toast.error("Couldn't subscribe you. Please try again.");
+      }
+    });
   }
 
   return (
@@ -48,6 +61,9 @@ export function NewsletterSection() {
         >
           <Input
             type="email"
+            name="email"
+            autoComplete="email"
+            maxLength={254}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
@@ -56,10 +72,20 @@ export function NewsletterSection() {
           />
           <button
             type="submit"
-            className="btn-glow group inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full px-6 font-semibold hover:-translate-y-0.5"
+            disabled={isPending}
+            className="btn-glow group inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full px-6 font-semibold hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-70"
           >
-            Subscribe
-            <Send className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            {isPending ? (
+              <>
+                Subscribing…
+                <Loader2 className="size-4 animate-spin" />
+              </>
+            ) : (
+              <>
+                Subscribe
+                <Send className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </>
+            )}
           </button>
         </form>
       </div>
