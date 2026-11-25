@@ -94,7 +94,7 @@ export default async function PostIdRoute({ params }: PostIdRouteProps) {
   const authorInitial = post.authorName.charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="relative mx-auto max-w-6xl px-4 md:px-0 py-6 duration-500 animate-in fade-in sm:py-8">
+    <div className="rise relative mx-auto max-w-3xl py-6 sm:py-10">
       <ReadingProgress />
 
       <Link
@@ -110,7 +110,7 @@ export default async function PostIdRoute({ params }: PostIdRouteProps) {
       </Link>
 
       {/* Post card */}
-      <article className="overflow-hidden rounded-3xl border bg-card shadow-sm">
+      <article className="surface overflow-hidden rounded-[2rem]">
         {/* Author header */}
         <header className="flex items-center gap-3 p-5 sm:px-6">
           <Avatar className="size-11 ring-2 ring-primary/20">
@@ -139,10 +139,10 @@ export default async function PostIdRoute({ params }: PostIdRouteProps) {
 
         {/* Title + text */}
         <div className="px-5 pb-4 sm:px-6">
-          <h1 className="text-2xl font-extrabold leading-snug tracking-tight text-foreground sm:text-3xl">
+          <h1 className="text-3xl font-bold leading-tight tracking-[-0.03em] text-balance text-foreground sm:text-5xl">
             {post.title}
           </h1>
-          <div className="mt-4 space-y-4 text-[1.0625rem] leading-8 text-foreground/95">
+          <div className="mt-6 space-y-5 text-[1.0625rem] leading-8 text-foreground/90 sm:text-lg sm:leading-9">
             {paragraphs.map((paragraph, i) => (
               <p key={i} className="whitespace-pre-wrap">
                 {paragraph}
@@ -167,7 +167,7 @@ export default async function PostIdRoute({ params }: PostIdRouteProps) {
               src={post.imageUrl}
               alt={post.title}
               fill
-              sizes="(max-width: 768px) 100vw, 672px"
+              sizes="(max-width: 768px) 100vw, 768px"
               priority
               className="object-cover"
             />
@@ -185,7 +185,10 @@ export default async function PostIdRoute({ params }: PostIdRouteProps) {
 
       <Separator className="my-8" />
 
-      <CommentSection preloadedComments={preloadedComments} />
+      <CommentSection
+        postId={post._id}
+        preloadedComments={preloadedComments}
+      />
     </div>
   );
 }

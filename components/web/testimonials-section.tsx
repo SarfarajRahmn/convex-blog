@@ -1,13 +1,11 @@
 "use client";
 
 import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-import { Star } from "lucide-react";
+import { Quote, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-gsap.registerPlugin(ScrollTrigger);
+import { TiltCard } from "./fx/TiltCard";
+import { SectionHeading } from "./fx/SectionHeading";
+import { useScrollReveal } from "./fx/use-scroll-reveal";
 
 const testimonials = [
   {
@@ -31,84 +29,63 @@ const testimonials = [
 ];
 
 export function TestimonialsSection() {
-  const container = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      gsap.fromTo(
-        ".testimonial-header",
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          ease: "power2.out",
-          scrollTrigger: { trigger: ".testimonial-header", start: "top 85%" },
-        },
-      );
-
-      gsap.fromTo(
-        ".testimonial-card",
-        { y: 60, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: "back.out(1.2)",
-          scrollTrigger: { trigger: ".testimonials-grid", start: "top 85%" },
-        },
-      );
-    },
-    { scope: container },
-  );
+  const container = useRef<HTMLElement>(null);
+  useScrollReveal(container);
 
   return (
-    <section ref={container} className="px-4 py-20">
-      <div className="mx-auto max-w-6xl space-y-14">
-        <div className="testimonial-header mx-auto max-w-2xl space-y-4 text-center opacity-0">
-          <h2 className="text-3xl font-bold tracking-tight md:text-5xl">
-            Loved by builders
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Developers ship faster and sleep better with a stack that handles
-            the hard parts for them.
-          </p>
-        </div>
+    <section ref={container} className="py-24">
+      <div className="mx-auto max-w-6xl space-y-16">
+        <SectionHeading
+          eyebrow="Community"
+          title="Loved by"
+          accent="builders"
+          description="Developers ship faster and sleep better with a stack that handles the hard parts for them."
+        />
 
-        <div className="testimonials-grid grid gap-6 md:grid-cols-3">
-          {testimonials.map((t) => (
-            <figure
+        <div className="grid gap-5 md:grid-cols-3">
+          {testimonials.map((t, i) => (
+            <div
               key={t.name}
-              className="testimonial-card glass glass-sheen flex flex-col rounded-2xl p-7 opacity-0"
+              data-reveal
+              data-reveal-delay={i * 0.12}
+              className={i === 1 ? "md:translate-y-8" : undefined}
             >
-              <div className="mb-4 flex gap-1 text-primary">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="size-4 fill-current" />
-                ))}
-              </div>
-              <blockquote className="flex-1 text-sm leading-relaxed text-foreground/90">
-                “{t.quote}”
-              </blockquote>
-              <figcaption className="mt-6 flex items-center gap-3">
-                <Avatar className="size-10">
-                  <AvatarImage
-                    src={`https://avatar.vercel.sh/${t.name}`}
-                    alt={t.name}
-                  />
-                  <AvatarFallback>
-                    {t.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-semibold">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
-                </div>
-              </figcaption>
-            </figure>
+              <TiltCard
+                className="h-full"
+                innerClassName="rounded-3xl"
+                max={12}
+              >
+                <figure className="flex h-full flex-col p-8 [transform-style:preserve-3d]">
+                  <Quote className="depth-lg absolute right-6 top-6 size-10 text-primary/25" />
+                  <div className="mb-5 flex gap-1 text-amber-400">
+                    {Array.from({ length: 5 }).map((_, star) => (
+                      <Star key={star} className="size-4 fill-current" />
+                    ))}
+                  </div>
+                  <blockquote className="depth-sm flex-1 text-base leading-relaxed text-foreground/90">
+                    “{t.quote}”
+                  </blockquote>
+                  <figcaption className="depth-sm mt-7 flex items-center gap-3">
+                    <Avatar className="size-11 ring-2 ring-primary/30">
+                      <AvatarImage
+                        src={`https://avatar.vercel.sh/${t.name}`}
+                        alt={t.name}
+                      />
+                      <AvatarFallback>
+                        {t.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-semibold">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">{t.role}</p>
+                    </div>
+                  </figcaption>
+                </figure>
+              </TiltCard>
+            </div>
           ))}
         </div>
       </div>

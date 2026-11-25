@@ -9,7 +9,6 @@ import { commentSchema } from "@/app/schemas/comment";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { useParams } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -33,9 +32,9 @@ import { Preloaded, usePreloadedQuery } from "convex/react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export function CommentSection(props: {
+  postId: Id<"posts">;
   preloadedComments: Preloaded<typeof api.comments.getCommentsByPostId>;
 }) {
-  const params = useParams<{ postId: Id<"posts"> }>();
   const data = usePreloadedQuery(props.preloadedComments);
   const [isPending, startTransition] = useTransition();
   const { data: session } = authClient.useSession();
@@ -47,7 +46,7 @@ export function CommentSection(props: {
     resolver: zodResolver(commentSchema),
     defaultValues: {
       body: "",
-      postId: params.postId,
+      postId: props.postId,
     },
   });
 
@@ -58,7 +57,7 @@ export function CommentSection(props: {
         form.reset();
         toast.success("Comment posted");
       } catch {
-        toast.error("Failed to create post");
+        toast.error("Failed to post comment");
       }
     });
   }
@@ -68,7 +67,7 @@ export function CommentSection(props: {
   }
 
   return (
-    <Card className="glass border-0">
+    <Card className="surface rounded-3xl">
       <CardHeader className="flex flex-row items-center gap-2 border-b">
         <MessageSquare className="size-5" />
         <h2 className="text-xl font-bold">{data.length} Comments</h2>

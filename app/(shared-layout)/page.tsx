@@ -7,12 +7,14 @@ import { TestimonialsSection } from "@/components/web/testimonials-section";
 import { FaqSection } from "@/components/web/faq-section";
 import { NewsletterSection } from "@/components/web/newsletter-section";
 import { CtaSection } from "@/components/web/cta-section";
+import { ShowcaseSection } from "@/components/web/showcase-section";
 
 export default function Home() {
   return (
     <div className="flex flex-col">
       <HeroSection />
       <MarqueeSection />
+      <ShowcaseSection />
       <StatsSection />
       <FeaturesSection />
       <HowItWorksSection />

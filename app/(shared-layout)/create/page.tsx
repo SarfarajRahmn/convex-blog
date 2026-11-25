@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { TiltCard } from "@/components/web/fx/TiltCard";
+import { Cube3D } from "@/components/web/fx/Cube3D";
 import { getReadingTime } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGSAP } from "@gsap/react";
@@ -220,12 +222,14 @@ export default function CreateRoute() {
   return (
     <div ref={container} className="py-8 sm:py-12">
       {/* Header */}
-      <div className="create-reveal mb-8 text-center sm:mb-10">
+      <div className="create-reveal relative mx-auto mb-10 max-w-4xl py-4 text-center">
+        <Cube3D className="absolute left-4 top-8 hidden md:block [--cube:46px]" />
+        <Cube3D className="absolute bottom-4 right-6 hidden md:block [animation-delay:-3s] [--cube:32px]" />
         <span className="glass mx-auto mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium text-primary">
           <Sparkles className="size-4 animate-pulse" />
           Let&apos;s make something great
         </span>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
+        <h1 className="text-4xl font-bold tracking-[-0.04em] sm:text-5xl md:text-6xl">
           Create a <span className="text-aurora">story</span>
         </h1>
         <p className="px-4 pt-3 text-base text-muted-foreground sm:text-lg">
@@ -237,7 +241,7 @@ export default function CreateRoute() {
         {/* Form */}
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="create-reveal glass glass-sheen rounded-3xl border-0 p-6 sm:p-8"
+          className="create-reveal surface rounded-3xl p-6 sm:p-8"
         >
           <FieldGroup className="gap-y-6">
             {/* Inspiration */}
@@ -497,7 +501,7 @@ export default function CreateRoute() {
 
         {/* Live preview */}
         <div className="create-reveal lg:sticky lg:top-24 lg:self-start">
-          <div className="glass glass-sheen overflow-hidden rounded-3xl border-0">
+          <TiltCard max={12} innerClassName="overflow-hidden rounded-3xl">
             <div className="relative aspect-video w-full bg-muted/40">
               {videoPreview ? (
                 <video
@@ -537,7 +541,7 @@ export default function CreateRoute() {
                 </span>
               )}
             </div>
-          </div>
+          </TiltCard>
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@ export default function SharedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col overflow-x-clip">
       <Navbar />
       <div className="mx-auto w-full max-w-7xl flex-1 px-4 md:px-6 lg:px-8">
         {children}

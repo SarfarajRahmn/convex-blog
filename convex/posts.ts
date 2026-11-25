@@ -213,6 +213,7 @@ interface searchResultTypes {
   _id: string;
   title: string;
   body: string;
+  slug?: string;
 }
 
 export const searchPosts = query({
@@ -236,6 +237,7 @@ export const searchPosts = query({
           _id: doc._id,
           title: doc.title,
           body: doc.body,
+          slug: doc.slug,
         });
         if (results.length >= limit) break;
       }

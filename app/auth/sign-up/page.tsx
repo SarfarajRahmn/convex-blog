@@ -53,10 +53,10 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="bg-background/60 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl p-8 space-y-6">
+    <div className="surface rounded-3xl p-8 space-y-6">
       {/* Header */}
       <div className="space-y-1 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">Create an account</h1>
+        <h1 className="text-3xl font-bold tracking-[-0.03em]">Create an account</h1>
         <p className="text-sm text-muted-foreground">
           Join CONVEXMedia and start writing today
         </p>
@@ -136,7 +136,7 @@ export default function SignUpPage() {
             </div>
           )}
 
-          <Button type="submit" className="w-full h-11 rounded-xl" disabled={isPending}>
+          <Button type="submit" className="btn-glow w-full h-12 rounded-full" disabled={isPending}>
             {isPending ? (
               <>
                 <Loader2 className="animate-spin size-4" />

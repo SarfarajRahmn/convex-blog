@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Input } from "@/components/ui/input";
+import { postPath } from "@/lib/utils";
 import { Loader2, Search, X } from "lucide-react";
 
 /**
@@ -26,14 +27,14 @@ export function BlogSearch() {
   return (
     <div className="relative mx-auto mb-10 w-full max-w-xl">
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="pointer-events-none absolute left-4 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="search"
           value={term}
           onChange={(e) => setTerm(e.target.value)}
           placeholder="Search articles…"
           aria-label="Search articles"
-          className="glass h-12 rounded-full border-0 pl-10 pr-10 text-base"
+          className="glass h-14 rounded-full pl-11 pr-10 text-base"
         />
         {term.length > 0 && (
           <button
@@ -48,7 +49,7 @@ export function BlogSearch() {
       </div>
 
       {showPanel && (
-        <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl glass shadow-lg">
+        <div className="glass absolute z-20 mt-2 w-full overflow-hidden rounded-2xl bg-popover/95">
           {isLoading ? (
             <div className="flex items-center gap-2 px-4 py-4 text-sm text-muted-foreground">
               <Loader2 className="size-4 animate-spin" />
@@ -59,7 +60,7 @@ export function BlogSearch() {
               {results.map((post) => (
                 <li key={post._id}>
                   <Link
-                    href={`/blog/${post._id}`}
+                    href={postPath(post)}
                     onClick={() => setTerm("")}
                     className="block px-4 py-3 transition-colors hover:bg-accent"
                   >

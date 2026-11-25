@@ -1,36 +1,16 @@
 "use client";
 
 import { useRef, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import { Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-
-gsap.registerPlugin(ScrollTrigger);
+import { Cube3D } from "./fx/Cube3D";
+import { useScrollReveal } from "./fx/use-scroll-reveal";
 
 export function NewsletterSection() {
-  const container = useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLElement>(null);
   const [email, setEmail] = useState("");
-
-  useGSAP(
-    () => {
-      gsap.fromTo(
-        ".newsletter-panel",
-        { y: 50, opacity: 0, scale: 0.97 },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.9,
-          ease: "power3.out",
-          scrollTrigger: { trigger: ".newsletter-panel", start: "top 88%" },
-        },
-      );
-    },
-    { scope: container },
-  );
+  useScrollReveal(container);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,8 +24,13 @@ export function NewsletterSection() {
   }
 
   return (
-    <section ref={container} className="px-4 py-16">
-      <div className="newsletter-panel glass-strong glass-sheen relative mx-auto max-w-4xl overflow-hidden rounded-[2rem] px-6 py-14 text-center opacity-0 sm:px-12">
+    <section ref={container} className="py-16">
+      <div
+        data-reveal
+        className="surface relative mx-auto max-w-4xl overflow-hidden rounded-[2rem] px-6 py-14 text-center sm:px-12"
+      >
+        <Cube3D className="absolute left-[7%] top-10 hidden md:block [--cube:48px]" />
+        <Cube3D className="absolute bottom-12 right-[8%] hidden md:block [animation-delay:-3.5s] [--cube:34px]" />
         <span className="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-primary/15 text-primary">
           <Mail className="size-7" />
         </span>
@@ -67,14 +52,14 @@ export function NewsletterSection() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             aria-label="Email address"
-            className="glass h-12 rounded-full border-0 px-5 text-base"
+            className="h-12 rounded-full bg-background/60 px-5 text-base"
           />
           <button
             type="submit"
-            className="btn-glow inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-foreground px-6 font-semibold text-background transition-transform hover:-translate-y-0.5"
+            className="btn-glow group inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full px-6 font-semibold hover:-translate-y-0.5"
           >
             Subscribe
-            <Send className="size-4" />
+            <Send className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </button>
         </form>
       </div>

@@ -1,18 +1,78 @@
 "use client";
 
 import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import Link from "next/link";
-import { BookOpen, HomeIcon, PenTool } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight, BookOpen, HomeIcon, PenTool } from "lucide-react";
+import { TiltCard } from "./fx/TiltCard";
+import { SectionHeading } from "./fx/SectionHeading";
+import { useScrollReveal } from "./fx/use-scroll-reveal";
 
-gsap.registerPlugin(ScrollTrigger);
+/** Three stacked pages that fan out when the card is hovered. */
+function PagesVisual() {
+  return (
+    <div className="relative mx-auto h-40 w-32">
+      {[
+        "-rotate-3 group-hover/tilt:-translate-x-16 group-hover/tilt:-rotate-12",
+        "rotate-3 group-hover/tilt:translate-x-16 group-hover/tilt:rotate-12",
+        "group-hover/tilt:-translate-y-3",
+      ].map((motion, i) => (
+        <div
+          key={i}
+          className={`absolute inset-0 space-y-2 rounded-xl border bg-card p-3 shadow-xl transition-transform duration-500 ease-out ${motion}`}
+        >
+          <div className="h-14 rounded-md bg-linear-to-br from-violet-500/70 via-fuchsia-500/50 to-sky-400/60" />
+          <div className="h-2 w-4/5 rounded-full bg-foreground/25" />
+          <div className="h-2 w-full rounded-full bg-foreground/10" />
+          <div className="h-2 w-full rounded-full bg-foreground/10" />
+          <div className="h-2 w-2/3 rounded-full bg-foreground/10" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Concentric rings that spread apart on hover. */
+function RingsVisual() {
+  return (
+    <div className="relative mx-auto flex size-40 items-center justify-center">
+      {[40, 66, 92].map((size, i) => (
+        <span
+          key={size}
+          className="absolute rounded-full border border-primary/35 transition-transform duration-700 ease-out group-hover/tilt:scale-[1.18]"
+          style={{
+            width: `${size + 48}px`,
+            height: `${size + 48}px`,
+            transitionDelay: `${i * 60}ms`,
+          }}
+        />
+      ))}
+      <span className="btn-glow flex size-16 items-center justify-center rounded-2xl">
+        <HomeIcon className="size-7" />
+      </span>
+    </div>
+  );
+}
+
+/** Lines of text that write themselves out on hover. */
+function EditorVisual() {
+  return (
+    <div className="mx-auto flex h-40 w-full max-w-60 flex-col justify-center gap-3 rounded-xl border bg-card/70 p-4">
+      {["w-3/5", "w-full", "w-11/12", "w-4/5", "w-2/5"].map((width, i) => (
+        <div key={i} className={`h-2.5 ${width}`}>
+          <div
+            className="h-full w-full origin-left scale-x-50 rounded-full bg-linear-to-r from-violet-500 to-fuchsia-400 opacity-50 transition-all duration-700 ease-out group-hover/tilt:scale-x-100 group-hover/tilt:opacity-100"
+            style={{ transitionDelay: `${i * 90}ms` }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 const features = [
   {
-    icon: <HomeIcon className="w-8 h-8" />,
+    icon: HomeIcon,
+    visual: RingsVisual,
     title: "Home Base",
     description:
       "Your entry point. Navigate through a beautiful, responsive, and blazingly fast landing experience.",
@@ -20,7 +80,8 @@ const features = [
     cta: "Go Home",
   },
   {
-    icon: <BookOpen className="w-8 h-8" />,
+    icon: BookOpen,
+    visual: PagesVisual,
     title: "Rich Typography Blog",
     description:
       "Browse curated content. Rendered server-side with Next.js 16 and cached for ultimate performance.",
@@ -28,7 +89,8 @@ const features = [
     cta: "Visit Blog",
   },
   {
-    icon: <PenTool className="w-8 h-8" />,
+    icon: PenTool,
+    visual: EditorVisual,
     title: "Authoring Experience",
     description:
       "Write your thoughts instantly. Live presence, real-time sync, and rich text powered by Convex.",
@@ -38,94 +100,49 @@ const features = [
 ];
 
 export function FeaturesSection() {
-  const container = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      // Title reveal
-      gsap.fromTo(
-        ".feature-header",
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: ".feature-header",
-            start: "top 85%",
-          },
-        },
-      );
-
-      // Cards stagger
-      gsap.fromTo(
-        ".feature-card",
-        { y: 60, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: "back.out(1.2)",
-          scrollTrigger: {
-            trigger: ".features-grid",
-            start: "top 85%",
-          },
-        },
-      );
-    },
-    { scope: container },
-  );
+  const container = useRef<HTMLElement>(null);
+  useScrollReveal(container);
 
   return (
-    <section ref={container} className="relative py-20 px-4">
-      <div className="mx-auto space-y-14">
-        <div className="feature-header text-center space-y-4 max-w-2xl mx-auto opacity-0">
-          <h2 className="text-3xl font-bold tracking-tight md:text-5xl">
-            Everything you need
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            A carefully curated stack giving you unparalleled developer velocity
-            and a stunning user experience out of the box.
-          </p>
-        </div>
+    <section ref={container} className="py-24">
+      <div className="mx-auto max-w-6xl space-y-16">
+        <SectionHeading
+          eyebrow="Platform"
+          title="Everything"
+          accent="you need"
+          description="A carefully curated stack giving you unparalleled developer velocity and a stunning user experience out of the box."
+        />
 
-        <div className="features-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-3">
           {features.map((feature, i) => (
-            <div
-              key={i}
-              className="feature-card glass glass-sheen opacity-0 group relative rounded-2xl p-7 hover:-translate-y-1.5 transition-all duration-300 flex flex-col"
-            >
-              {/* Card Gradient Glow effect */}
-              <div className="absolute inset-0 bg-linear-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none" />
+            <div key={feature.title} data-reveal data-reveal-delay={i * 0.12}>
+              <TiltCard
+                className="h-full"
+                innerClassName="flex flex-col rounded-3xl p-7"
+              >
+                <div className="depth-lg flex h-52 items-center justify-center">
+                  <feature.visual />
+                </div>
 
-              <div className="mb-5 inline-flex p-3.5 rounded-xl bg-primary/15 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 w-fit">
-                {feature.icon}
-              </div>
+                <div className="depth-sm mt-4 flex flex-1 flex-col">
+                  <h3 className="flex items-center gap-3 text-xl font-bold tracking-tight">
+                    <feature.icon className="size-5 text-primary" />
+                    {feature.title}
+                  </h3>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
+                    {feature.description}
+                  </p>
 
-              <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
-                {feature.title}
-              </h3>
-
-              <p className="text-muted-foreground leading-relaxed flex-1 mb-6 text-sm">
-                {feature.description}
-              </p>
-
-              <div className="mt-auto">
-                <Button
-                  asChild
-                  variant="ghost"
-                  className="w-full justify-between group/btn hover:bg-primary/10"
-                >
-                  <Link href={feature.href}>
+                  {/* The stretched link makes the whole card clickable. */}
+                  <Link
+                    href={feature.href}
+                    className="mt-6 inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-primary after:absolute after:inset-0 after:z-10 after:rounded-3xl"
+                  >
                     {feature.cta}
-                    <span className="opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all duration-300">
-                      →
-                    </span>
+                    <ArrowUpRight className="size-4 transition-transform group-hover/tilt:-translate-y-0.5 group-hover/tilt:translate-x-0.5" />
                   </Link>
-                </Button>
-              </div>
+                </div>
+              </TiltCard>
             </div>
           ))}
         </div>

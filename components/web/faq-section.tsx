@@ -1,13 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-gsap.registerPlugin(ScrollTrigger);
+import { SectionHeading } from "./fx/SectionHeading";
+import { useScrollReveal } from "./fx/use-scroll-reveal";
 
 const faqs = [
   {
@@ -33,59 +30,31 @@ const faqs = [
 ];
 
 export function FaqSection() {
-  const container = useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLElement>(null);
   const [open, setOpen] = useState<number | null>(0);
-
-  useGSAP(
-    () => {
-      gsap.fromTo(
-        ".faq-header",
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          ease: "power2.out",
-          scrollTrigger: { trigger: ".faq-header", start: "top 85%" },
-        },
-      );
-
-      gsap.fromTo(
-        ".faq-item",
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: "power2.out",
-          scrollTrigger: { trigger: ".faq-list", start: "top 85%" },
-        },
-      );
-    },
-    { scope: container },
-  );
+  useScrollReveal(container);
 
   return (
-    <section ref={container} className="px-4 py-20">
-      <div className="mx-auto max-w-3xl space-y-12">
-        <div className="faq-header mx-auto max-w-2xl space-y-4 text-center opacity-0">
-          <h2 className="text-3xl font-bold tracking-tight md:text-5xl">
-            Frequently asked questions
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Everything you need to know before you start building.
-          </p>
-        </div>
+    <section ref={container} className="py-24">
+      <div className="mx-auto max-w-3xl space-y-14">
+        <SectionHeading
+          eyebrow="FAQ"
+          title="Questions,"
+          accent="answered"
+          description="Everything you need to know before you start building."
+        />
 
-        <div className="faq-list space-y-3">
+        <div className="space-y-3">
           {faqs.map((faq, i) => {
             const isOpen = open === i;
             return (
-              <div
-                key={i}
-                className="faq-item glass overflow-hidden rounded-2xl opacity-0"
-              >
+              <div key={faq.q} data-reveal data-reveal-delay={i * 0.06}>
+                <div
+                  className={cn(
+                    "surface overflow-hidden rounded-2xl transition-colors duration-300 hover:border-primary/40",
+                    isOpen && "border-primary/50",
+                  )}
+                >
                 <button
                   type="button"
                   onClick={() => setOpen(isOpen ? null : i)}
@@ -115,6 +84,7 @@ export function FaqSection() {
                       {faq.a}
                     </p>
                   </div>
+                </div>
                 </div>
               </div>
             );

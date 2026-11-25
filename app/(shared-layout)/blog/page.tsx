@@ -1,7 +1,9 @@
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BlogSearch } from "@/components/web/BlogSearch";
+import { HoverVideo } from "@/components/web/HoverVideo";
+import { TiltCard } from "@/components/web/fx/TiltCard";
+import { Cube3D } from "@/components/web/fx/Cube3D";
 import { api } from "@/convex/_generated/api";
 import { getReadingTime, formatDate, postPath } from "@/lib/utils";
 import { fetchQuery } from "convex/nextjs";
@@ -25,19 +27,20 @@ const FALLBACK_IMAGE =
 export default function BlogPage() {
   return (
     <div className="py-8 sm:py-12">
-      {/* Glass header */}
-      <div className="glass glass-sheen mx-auto mb-10 max-w-4xl rounded-[2rem] px-6 py-12 text-center sm:py-16">
-        <span className="glass mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium">
-          <Sparkles className="size-4 text-primary" />
+      <header className="relative mx-auto mb-12 max-w-4xl py-8 text-center sm:py-14">
+        <Cube3D className="absolute left-0 top-10 hidden md:block [--cube:52px]" />
+        <Cube3D className="absolute bottom-8 right-2 hidden md:block [animation-delay:-3s] [--cube:36px]" />
+        <span className="rise eyebrow">
+          <Sparkles className="size-3.5 text-primary" />
           Fresh stories &amp; videos
         </span>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+        <h1 className="rise mt-6 text-5xl font-bold leading-none tracking-[-0.045em] [--delay:0.08s] sm:text-6xl md:text-7xl">
           The <span className="text-aurora">ConvexMedia</span> Blog
         </h1>
-        <p className="mx-auto max-w-2xl pt-4 text-base text-muted-foreground sm:text-xl">
+        <p className="rise mx-auto max-w-2xl pt-6 text-base text-muted-foreground [--delay:0.16s] sm:text-xl">
           Insights, tutorials, and real-time stories — now with video.
         </p>
-      </div>
+      </header>
 
       <BlogSearch />
 
@@ -92,19 +95,16 @@ function PostMedia({
   if (post.videoUrl) {
     return (
       <>
-        <video
-          src={`${post.videoUrl}#t=0.1`}
+        <HoverVideo
+          src={post.videoUrl}
           poster={post.imageUrl ?? undefined}
-          muted
-          playsInline
-          preload="metadata"
           className={`size-full object-cover ${className ?? ""}`}
         />
         <span className="absolute left-3 top-3 z-10 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur">
           <Play className="size-3 fill-current" />
           Video
         </span>
-        <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+        <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 group-hover/tilt:opacity-0">
           <span className="flex size-14 items-center justify-center rounded-full bg-white/25 backdrop-blur transition-transform group-hover:scale-110">
             <Play className="size-6 fill-white text-white" />
           </span>
@@ -119,84 +119,95 @@ function PostMedia({
       alt={post.title}
       fill
       sizes={sizes}
-      className={`object-cover transition-transform duration-500 group-hover:scale-105 ${className ?? ""}`}
+      className={`object-cover transition-transform duration-700 ease-out group-hover/tilt:scale-110 ${className ?? ""}`}
     />
+  );
+}
+
+function PostMeta({ post }: { post: Post }) {
+  return (
+    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+      <span>{formatDate(post._creationTime)}</span>
+      <span className="flex items-center gap-1">
+        <Clock className="size-3" />
+        {getReadingTime(post.body)} min read
+      </span>
+    </div>
   );
 }
 
 function FeaturedPost({ post }: { post: Post }) {
   return (
-    <Card className="group glass glass-sheen overflow-hidden border-0 p-0 transition-all duration-300 hover:-translate-y-1">
-      <div className="grid md:grid-cols-2">
-        <div className="relative h-60 w-full overflow-hidden sm:h-72 md:h-96">
-          <PostMedia post={post} sizes="(max-width: 768px) 100vw, 50vw" />
+    <TiltCard max={5} innerClassName="rounded-[2rem] p-2">
+      <article className="grid md:grid-cols-[1.15fr_1fr]">
+        <div className="relative h-60 w-full overflow-hidden rounded-3xl sm:h-72 md:h-[26rem]">
+          <PostMedia post={post} sizes="(max-width: 768px) 100vw, 55vw" />
         </div>
-        <div className="flex flex-col justify-center p-6 sm:p-10">
-          <span className="mb-3 w-fit rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+        <div className="depth-sm flex flex-col items-start justify-center p-6 sm:p-10">
+          <span className="btn-glow mb-4 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-widest">
             Featured
           </span>
-          <div className="mb-3 flex items-center gap-3 text-xs text-muted-foreground">
-            <span>{formatDate(post._creationTime)}</span>
-            <span className="flex items-center gap-1">
-              <Clock className="size-3" />
-              {getReadingTime(post.body)} min read
-            </span>
-          </div>
-          <Link href={postPath(post)}>
-            <h2 className="text-2xl font-extrabold tracking-tight transition-colors hover:text-primary sm:text-4xl">
+          <PostMeta post={post} />
+          <h2 className="mt-3 text-3xl font-bold leading-tight tracking-[-0.03em] sm:text-4xl">
+            <Link
+              href={postPath(post)}
+              className="transition-colors hover:text-primary"
+            >
               {post.title}
-            </h2>
-          </Link>
-          <p className="mt-3 line-clamp-3 text-muted-foreground">{post.body}</p>
+            </Link>
+          </h2>
+          <p className="mt-4 line-clamp-3 text-muted-foreground">{post.body}</p>
           <Link
             href={postPath(post)}
-            className={buttonVariants({ className: "mt-6 w-fit gap-2" })}
+            className="btn-glow mt-7 inline-flex h-11 items-center gap-2 rounded-full px-6 text-sm font-semibold"
           >
             Read article
-            <ArrowRight className="size-4" />
+            <ArrowRight className="size-4 transition-transform group-hover/tilt:translate-x-1" />
           </Link>
         </div>
-      </div>
-    </Card>
+      </article>
+    </TiltCard>
   );
 }
 
 function PostCard({ post }: { post: Post }) {
   return (
-    <Card className="group glass glass-sheen overflow-hidden border-0 pt-0 transition-all duration-300 hover:-translate-y-1.5">
-      <div className="relative h-44 w-full overflow-hidden sm:h-48">
-        <PostMedia
-          post={post}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
-      </div>
-
-      <CardContent>
-        <div className="mb-2 flex items-center gap-3 text-xs text-muted-foreground">
-          <span>{formatDate(post._creationTime)}</span>
-          <span className="flex items-center gap-1">
-            <Clock className="size-3" />
-            {getReadingTime(post.body)} min read
-          </span>
+    <div className="reveal-view">
+      <TiltCard
+        className="h-full"
+        innerClassName="flex flex-col rounded-3xl p-2"
+        max={10}
+      >
+        <div className="relative h-48 w-full overflow-hidden rounded-2xl">
+          <PostMedia
+            post={post}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
         </div>
-        <Link href={postPath(post)}>
-          <h2 className="line-clamp-2 text-xl font-bold transition-colors hover:text-primary sm:text-2xl">
-            {post.title}
+
+        <div className="depth-sm flex flex-1 flex-col p-4">
+          <PostMeta post={post} />
+          <h2 className="mt-3 line-clamp-2 text-xl font-bold tracking-tight">
+            <Link
+              href={postPath(post)}
+              className="transition-colors hover:text-primary"
+            >
+              {post.title}
+            </Link>
           </h2>
-        </Link>
-        <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
-          {post.body}
-        </p>
-      </CardContent>
-      <CardFooter>
-        <Link
-          className={buttonVariants({ className: "w-full" })}
-          href={postPath(post)}
-        >
-          Read more
-        </Link>
-      </CardFooter>
-    </Card>
+          <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+            {post.body}
+          </p>
+          <Link
+            href={postPath(post)}
+            className="mt-auto inline-flex w-fit items-center gap-1.5 pt-5 text-sm font-semibold text-primary"
+          >
+            Read more
+            <ArrowRight className="size-4 transition-transform group-hover/tilt:translate-x-1" />
+          </Link>
+        </div>
+      </TiltCard>
+    </div>
   );
 }
 

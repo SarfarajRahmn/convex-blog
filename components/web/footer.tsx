@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Github, PersonStanding, Twitter } from "lucide-react";
 import { CurrentYear } from "./CurrentYear";
+import { Logo } from "./Logo";
 
 const linkGroups = [
   {
@@ -31,13 +32,11 @@ const linkGroups = [
 export function Footer() {
   return (
     <footer className="px-3 pb-6 sm:px-4">
-      <div className="glass mx-auto max-w-6xl rounded-3xl px-6 py-12 sm:px-10">
+      <div className="surface mx-auto max-w-6xl overflow-hidden rounded-[2rem] px-6 pt-12 sm:px-10">
         <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div className="space-y-4">
-            <Link href="/">
-              <h2 className="text-2xl font-bold tracking-tight">
-                CONVEX<span className="text-aurora">Media</span>
-              </h2>
+            <Link href="/" className="inline-block">
+              <Logo />
             </Link>
             <p className="max-w-xs text-sm text-muted-foreground">
               A real-time, open-source blogging platform built with Next.js 16,
@@ -49,7 +48,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="glass glass-sheen flex size-10 items-center justify-center rounded-full transition-transform hover:-translate-y-0.5"
+                className="surface flex size-10 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-1 hover:rotate-6 hover:border-primary/50 hover:text-primary"
               >
                 <Github className="size-4" />
               </a>
@@ -58,7 +57,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Twitter"
-                className="glass glass-sheen flex size-10 items-center justify-center rounded-full transition-transform hover:-translate-y-0.5"
+                className="surface flex size-10 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-1 hover:rotate-6 hover:border-primary/50 hover:text-primary"
               >
                 <Twitter className="size-4" />
               </a>
@@ -67,7 +66,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Website"
-                className="glass glass-sheen flex size-10 items-center justify-center rounded-full transition-transform hover:-translate-y-0.5"
+                className="surface flex size-10 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-1 hover:rotate-6 hover:border-primary/50 hover:text-primary"
               >
                 <PersonStanding className="size-4" />
               </a>
@@ -84,7 +83,7 @@ export function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                      className="inline-block text-sm text-muted-foreground transition-all duration-300 hover:translate-x-1 hover:text-primary"
                     >
                       {link.label}
                     </Link>
@@ -101,6 +100,13 @@ export function Footer() {
           </p>
           <p>Built with Next.js, Convex & Better Auth.</p>
         </div>
+
+        <p
+          aria-hidden
+          className="wordmark mt-8 select-none text-center text-[clamp(2.4rem,11.2vw,8.5rem)] font-bold leading-[0.85] tracking-[-0.06em]"
+        >
+          CONVEXMedia
+        </p>
       </div>
     </footer>
   );
